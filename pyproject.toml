@@ -1,0 +1,51 @@
+[tool.pytest.ini_options]
+# Pytest configuration for Flask Blog
+
+# Minimum version
+minversion = "7.0"
+
+# Test discovery patterns
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Test paths
+testpaths = ["tests"]
+
+# Addopts - default command line arguments
+addopts = [
+    "-v",                           # Verbose output
+    "--strict-markers",             # Strict marker validation
+    "--tb=short",                   # Short traceback format
+    "--cov=app",                    # Coverage for app directory
+    "--cov-report=term-missing",    # Show missing lines
+    "--cov-report=html",            # Generate HTML coverage report
+    "--disable-warnings",           # Disable warnings
+]
+
+# Markers
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "api: marks tests as API tests",
+]
+
+# Coverage options
+[tool.coverage.run]
+source = ["app"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/.venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+]

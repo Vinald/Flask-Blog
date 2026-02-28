@@ -351,15 +351,49 @@ After modifying models:
 
 ## Testing
 
+The application includes a comprehensive test suite with 200+ tests covering all functionality.
+
+### Run Tests
+
 ```bash
-# Run tests
+# Install test dependencies
+pip install -r requirements.txt
+
+# Run all tests
 pytest
 
-# With coverage
-pytest --cov=app tests/
+# Run with coverage report
+pytest --cov=app --cov-report=html
+
+# Run specific test file
+pytest tests/test_auth.py
+
+# Run tests verbosely
+pytest -v
 ```
 
-## Technologies
+### Test Coverage
+
+- ✅ **Authentication** - Registration, login, logout, password management
+- ✅ **Blog Posts** - CRUD operations, permissions, search
+- ✅ **RESTful API** - All API endpoints with authentication
+- ✅ **Service Layer** - Business logic and validation
+- ✅ **Models** - Database models and relationships
+- ✅ **Integration** - Complete user workflows
+
+See [tests/README.md](tests/README.md) for detailed testing documentation.
+
+### Test Files
+
+- `tests/conftest.py` - Test configuration and fixtures
+- `tests/test_auth.py` - Authentication tests (60+ tests)
+- `tests/test_blog.py` - Blog post tests (50+ tests)
+- `tests/test_api.py` - API tests (40+ tests)
+- `tests/test_services.py` - Service layer tests (25+ tests)
+- `tests/test_models.py` - Model tests (15+ tests)
+- `tests/test_integration.py` - Integration tests (15+ tests)
+
+## Database Migrations
 
 ### Backend
 - **Flask 3.1.3** - Web framework
