@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="jumbotron bg-light p-5 rounded-3 mb-4">
+    <div class="container-fluid text-center">
+        <h1 class="display-4">Welcome to Flask Blog</h1>
+        <p class="lead">A modern blogging platform built with Flask, SQLAlchemy, and Bootstrap</p>
+        <hr class="my-4">
+
+        {% if current_user.is_authenticated %}
+            <!-- Logged in user welcome -->
+            <p class="fs-5">Hello, <strong>{{ current_user.username }}</strong>! Welcome back.</p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a href="{{ url_for('auth.profile') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-user"></i> View Profile
+                </a>
+                <a href="#" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-plus"></i> Create Post
+                </a>
+            </div>
+        {% else %}
+            <!-- Guest welcome -->
+            <p class="fs-5">Join our community and start sharing your thoughts with the world!</p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-user-plus"></i> Get Started
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-lock fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Secure Authentication</h5>
+                <p class="card-text">
+                    Industry-standard password hashing with bcrypt ensures your account is safe and secure.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-database fa-3x text-success mb-3"></i>
+                <h5 class="card-title">PostgreSQL Database</h5>
+                <p class="card-text">
+                    Powered by PostgreSQL for reliable, scalable, and production-ready data storage.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-code-branch fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Database Migrations</h5>
+                <p class="card-text">
+                    Alembic-powered migrations for version-controlled database schema management.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Technology Stack -->
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-layer-group"></i> Technology Stack</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="fw-bold">Backend</h6>
+                <ul>
+                    <li>Flask 3.1.3 - Web Framework</li>
+                    <li>SQLAlchemy 2.0 - ORM</li>
+                    <li>PostgreSQL - Database</li>
+                    <li>Alembic - Migrations</li>
+                    <li>Flask-Login - Authentication</li>
+                    <li>Flask-Bcrypt - Password Hashing</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6 class="fw-bold">Frontend</h6>
+                <ul>
+                    <li>Bootstrap 5 - UI Framework</li>
+                    <li>Font Awesome - Icons</li>
+                    <li>Jinja2 - Template Engine</li>
+                    <li>WTForms - Form Validation</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section (if logged in) -->
+{% if current_user.is_authenticated %}
+    <div class="row g-4 mt-3">
+        <div class="col-md-4">
+            <div class="card text-center bg-primary text-white">
+                <div class="card-body">
+                    <h3 class="card-title">{{ current_user.posts|length }}</h3>
+                    <p class="card-text">Your Posts</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center bg-success text-white">
+                <div class="card-body">
+                    <h3 class="card-title">
+                        {% if current_user.created_at %}
+                            {{ current_user.created_at.strftime('%b %Y') }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </h3>
+                    <p class="card-text">Member Since</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center bg-info text-white">
+                <div class="card-body">
+                    <h3 class="card-title">
+                        {% if current_user.is_admin %}
+                            <i class="fas fa-crown"></i>
+                        {% else %}
+                            <i class="fas fa-user"></i>
+                        {% endif %}
+                    </h3>
+                    <p class="card-text">
+                        {% if current_user.is_admin %}Admin{% else %}Member{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

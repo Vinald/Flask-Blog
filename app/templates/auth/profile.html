@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <!-- Profile Header -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body text-center p-5">
+                <div class="mb-4">
+                    <i class="fas fa-user-circle fa-5x text-primary"></i>
+                </div>
+                <h2 class="card-title mb-3">{{ user.username }}</h2>
+                <p class="text-muted lead">{{ user.email }}</p>
+
+                {% if user.is_admin %}
+                    <span class="badge bg-danger">Administrator</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Account Information -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Account Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">Username:</div>
+                    <div class="col-sm-8">{{ user.username }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">Email:</div>
+                    <div class="col-sm-8">{{ user.email }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">Member Since:</div>
+                    <div class="col-sm-8">{{ user.created_at.strftime('%B %d, %Y') }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">Last Login:</div>
+                    <div class="col-sm-8">
+                        {% if user.last_login %}
+                            {{ user.last_login.strftime('%B %d, %Y at %I:%M %p') }}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">Account Status:</div>
+                    <div class="col-sm-8">
+                        {% if user.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Total Posts:</div>
+                    <div class="col-sm-8">{{ user.posts|length }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Actions -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-cog"></i> Account Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <!-- Change Password Button -->
+                    <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-key"></i> Change Password
+                    </a>
+
+                    <!-- Deactivate Account Button -->
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deactivateModal">
+                        <i class="fas fa-user-slash"></i> Deactivate Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Deactivate Account Confirmation Modal -->
+<div class="modal fade" id="deactivateModal" tabindex="-1" aria-labelledby="deactivateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deactivateModalLabel">
+                    <i class="fas fa-exclamation-triangle"></i> Confirm Account Deactivation
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="fw-bold">Are you sure you want to deactivate your account?</p>
+                <p>This action will:</p>
+                <ul>
+                    <li>Log you out immediately</li>
+                    <li>Prevent you from logging in</li>
+                    <li>Preserve your data (can be reactivated by contacting support)</li>
+                </ul>
+                <p class="text-danger">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Note:</strong> This action does not delete your account permanently.
+                    Contact support to reactivate your account.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('auth.delete_account') }}" class="d-inline">
+                    <button type="submit" class="btn btn-danger">Yes, Deactivate My Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

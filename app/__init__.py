@@ -2,7 +2,7 @@ import os
 from flask import Flask
 from dotenv import load_dotenv
 from app import config
-from app.extensions import db, ma
+from app.extensions import db, ma, login_manager, bcrypt
 from flask_migrate import Migrate
 
 # Load environment variables from .env file
@@ -11,6 +11,16 @@ load_dotenv()
 migrate = Migrate()
 
 def create_app(test_config=None):
+    """
+    Application factory pattern.
+    Creates and configures the Flask application.
+
+    Args:
+        test_config (dict): Optional test configuration
+
+    Returns:
+        Flask: Configured Flask application instance
+    """
     app = Flask(__name__, instance_relative_config=True)
 
     if test_config is None:
@@ -24,6 +34,9 @@ def create_app(test_config=None):
             SECRET_KEY=os.getenv('SECRET_KEY', 'dev'),
             SQLALCHEMY_DATABASE_URI=db_uri,
             SQLALCHEMY_TRACK_MODIFICATIONS=os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS', 'False').lower() in ('true', '1', 't'),
+            # WTForms configuration
+            WTF_CSRF_ENABLED=True,
+            WTF_CSRF_TIME_LIMIT=None,  # No time limit for CSRF token
         )
         app.config.from_pyfile('config.py', silent=True)
     else:
@@ -35,13 +48,36 @@ def create_app(test_config=None):
     db.init_app(app)
     ma.init_app(app)
     migrate.init_app(app, db)
+    login_manager.init_app(app)
+    bcrypt.init_app(app)
 
     # Import models to ensure they're registered with SQLAlchemy
+    # This must be done before registering blueprints to avoid circular imports
     with app.app_context():
         from app.models import User, Post
 
-    @app.route('/')
-    def index():
-        return 'Hello, World!'
+    # Register blueprints
+    from app.api.auth import auth_bp
+    from app.api.main import main_bp
+
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(main_bp)
+
+    # Context processor to make utilities available in all templates
+    @app.context_processor
+    def inject_utilities():
+        """
+        Make useful utilities available in all templates:
+        - current_user: The currently logged-in user
+        - datetime: Python datetime module for date operations
+        - now: Current datetime function
+        """
+        from flask_login import current_user
+        from datetime import datetime, timezone
+        return dict(
+            current_user=current_user,
+            datetime=datetime,
+            now=lambda: datetime.now(timezone.utc)
+        )
 
     return app

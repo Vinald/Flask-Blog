@@ -1,4 +1,4 @@
-tab"""
+"""
 Main blueprint - handles general application routes.
 Includes home page, about page, etc.
 """

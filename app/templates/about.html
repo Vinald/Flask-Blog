@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <!-- About Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4">About Flask Blog</h1>
+            <p class="lead text-muted">A modern, secure, and feature-rich blogging platform</p>
+        </div>
+
+        <!-- Project Description -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h3 class="card-title"><i class="fas fa-info-circle text-primary"></i> What is Flask Blog?</h3>
+                <p class="card-text">
+                    Flask Blog is a full-featured blogging platform built with Flask, SQLAlchemy, and PostgreSQL.
+                    It demonstrates modern web development practices including authentication, database migrations,
+                    form validation, and responsive design.
+                </p>
+                <p class="card-text">
+                    This application serves as both a functional blogging platform and a learning resource for
+                    developers interested in building production-ready Flask applications.
+                </p>
+            </div>
+        </div>
+
+        <!-- Key Features -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h3 class="card-title"><i class="fas fa-star text-warning"></i> Key Features</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <strong>Secure Authentication</strong>
+                                <br><small class="text-muted">Bcrypt password hashing and Flask-Login sessions</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <strong>User Management</strong>
+                                <br><small class="text-muted">Registration, login, profile, and password changes</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <strong>Form Validation</strong>
+                                <br><small class="text-muted">WTForms with comprehensive validation</small>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <strong>Database Migrations</strong>
+                                <br><small class="text-muted">Alembic for schema version control</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <strong>PostgreSQL Backend</strong>
+                                <br><small class="text-muted">Production-ready relational database</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <strong>Responsive Design</strong>
+                                <br><small class="text-muted">Bootstrap 5 for mobile-friendly interface</small>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Stack -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h3 class="card-title"><i class="fas fa-code text-info"></i> Technology Stack</h3>
+
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Backend:</div>
+                    <div class="col-md-9">
+                        <span class="badge bg-primary me-1">Flask 3.1.3</span>
+                        <span class="badge bg-primary me-1">SQLAlchemy 2.0</span>
+                        <span class="badge bg-primary me-1">PostgreSQL</span>
+                        <span class="badge bg-primary me-1">Alembic</span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Authentication:</div>
+                    <div class="col-md-9">
+                        <span class="badge bg-success me-1">Flask-Login</span>
+                        <span class="badge bg-success me-1">Flask-Bcrypt</span>
+                        <span class="badge bg-success me-1">WTForms</span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Frontend:</div>
+                    <div class="col-md-9">
+                        <span class="badge bg-info me-1">Bootstrap 5</span>
+                        <span class="badge bg-info me-1">Jinja2</span>
+                        <span class="badge bg-info me-1">Font Awesome</span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3 fw-bold">Deployment:</div>
+                    <div class="col-md-9">
+                        <span class="badge bg-warning text-dark me-1">python-dotenv</span>
+                        <span class="badge bg-warning text-dark me-1">Flask-Migrate</span>
+                        <span class="badge bg-warning text-dark me-1">psycopg3</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Architecture -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h3 class="card-title"><i class="fas fa-sitemap text-danger"></i> Architecture</h3>
+                <p>Flask Blog follows a clean, modular architecture:</p>
+                <ul>
+                    <li><strong>Application Factory Pattern:</strong> Flexible app configuration and testing</li>
+                    <li><strong>Blueprints:</strong> Modular route organization (auth, main, etc.)</li>
+                    <li><strong>Service Layer:</strong> Business logic separated from routes</li>
+                    <li><strong>ORM Models:</strong> Database abstraction with SQLAlchemy</li>
+                    <li><strong>Form Validation:</strong> WTForms with custom validators</li>
+                    <li><strong>Template Inheritance:</strong> DRY templates with Jinja2</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Security Features -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h3 class="card-title"><i class="fas fa-shield-alt text-success"></i> Security Features</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold">Authentication</h6>
+                        <ul>
+                            <li>Bcrypt password hashing</li>
+                            <li>Session-based authentication</li>
+                            <li>Remember me functionality</li>
+                            <li>Account deactivation option</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold">Protection</h6>
+                        <ul>
+                            <li>CSRF protection on all forms</li>
+                            <li>SQL injection prevention (ORM)</li>
+                            <li>XSS protection (template escaping)</li>
+                            <li>Secure password policies</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Getting Started -->
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="card-title"><i class="fas fa-rocket text-primary"></i> Get Started</h3>
+                <p>Ready to join our community?</p>
+                <div class="d-grid gap-2 d-md-flex">
+                    {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('auth.profile') }}" class="btn btn-primary">
+                            <i class="fas fa-user"></i> View Profile
+                        </a>
+                        <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-home"></i> Go Home
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
