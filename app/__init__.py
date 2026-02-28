@@ -59,9 +59,11 @@ def create_app(test_config=None):
     # Register blueprints
     from app.api.auth import auth_bp
     from app.api.main import main_bp
+    from app.api.blog import blog_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
+    app.register_blueprint(blog_bp)
 
     # Context processor to make utilities available in all templates
     @app.context_processor

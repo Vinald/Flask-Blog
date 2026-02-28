@@ -1,6 +1,6 @@
 """
 Flask extensions initialization.
-All extensions are initialized here and then registered with the app in app/__init__.py
+All extensions are initialized here and then registered with the app in app/auth.py
 """
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow

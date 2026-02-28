@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <!-- Post Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <!-- Post Title -->
+                <h1 class="card-title mb-3">{{ post.title }}</h1>
+
+                <!-- Post Meta Information -->
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                    <div>
+                        <i class="fas fa-user text-primary"></i>
+                        <a href="{{ url_for('blog.author_posts', author_id=post.author.id) }}"
+                           class="text-decoration-none fw-bold">
+                            {{ post.author.username }}
+                        </a>
+                        {% if post.author.is_admin %}
+                            <span class="badge bg-danger ms-2">Admin</span>
+                        {% endif %}
+                    </div>
+                    <div class="text-muted">
+                        <i class="fas fa-calendar"></i>
+                        {{ post.created.strftime('%B %d, %Y at %I:%M %p') }}
+                    </div>
+                </div>
+
+                <!-- Post Content -->
+                <div class="post-content">
+                    {{ post.body|replace('\n', '<br>')|safe }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        {% if current_user.is_authenticated and (current_user.id == post.author_id or current_user.is_admin) %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-tools"></i> Manage Post
+                    </h5>
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('blog.edit_post', post_id=post.id) }}"
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <button type="button" class="btn btn-outline-danger"
+                                data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Back Button -->
+        <div class="mb-4">
+            <a href="{{ url_for('blog.index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Blog
+            </a>
+            <a href="{{ url_for('blog.author_posts', author_id=post.author.id) }}"
+               class="btn btn-outline-info">
+                <i class="fas fa-user"></i> More by {{ post.author.username }}
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle"></i> Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="fw-bold">Are you sure you want to delete this post?</p>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-info-circle"></i>
+                    This action cannot be undone. The post will be permanently deleted.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('blog.delete_post', post_id=post.id) }}" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete Post
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .post-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+    }
+</style>
+{% endblock %}

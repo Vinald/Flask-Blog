@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <!-- Create Post Card -->
+        <div class="card shadow-sm">
+            <div class="card-body p-5">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <i class="fas fa-pen fa-3x text-primary mb-3"></i>
+                    <h2 class="card-title">Create New Post</h2>
+                    <p class="text-muted">Share your thoughts with the community</p>
+                </div>
+
+                <!-- Post Creation Form -->
+                <form method="POST" action="{{ url_for('blog.create_post') }}" novalidate>
+                    <!-- CSRF Token for security -->
+                    {{ form.hidden_tag() }}
+
+                    <!-- Title Field -->
+                    <div class="mb-4">
+                        {{ form.title.label(class="form-label fw-bold") }}
+                        {{ form.title(class="form-control form-control-lg" + (" is-invalid" if form.title.errors else "")) }}
+                        {% if form.title.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i> A catchy title helps attract readers (3-200 characters)
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Body/Content Field -->
+                    <div class="mb-4">
+                        {{ form.body.label(class="form-label fw-bold") }}
+                        {{ form.body(class="form-control" + (" is-invalid" if form.body.errors else "")) }}
+                        {% if form.body.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.body.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i> Write your full post content here (minimum 10 characters)
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                        <a href="{{ url_for('blog.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Writing Tips -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-lightbulb text-warning"></i> Writing Tips
+                </h6>
+                <ul class="mb-0 small">
+                    <li>Make your title clear and descriptive</li>
+                    <li>Break content into paragraphs for readability</li>
+                    <li>Proofread before publishing</li>
+                    <li>Be respectful and constructive</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -9,7 +9,6 @@ from app.services.auth_service import AuthService
 from urllib.parse import urlparse
 
 # Create authentication blueprint
-# url_prefix='/auth' means all routes will be prefixed with /auth
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 

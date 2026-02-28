@@ -56,6 +56,19 @@
                         <a class="nav-link" href="{{ url_for('main.index') }}">Home</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('blog.index') }}">Blog</a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('blog.my_posts') }}">My Posts</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('blog.create_post') }}">
+                                <i class="fas fa-plus"></i> Create Post
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.about') }}">About</a>
                     </li>
                 </ul>

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Header -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="display-5">
+            <i class="fas fa-user-edit"></i> My Posts
+        </h1>
+        <p class="lead text-muted">Manage your blog posts</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('blog.create_post') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create New Post
+        </a>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center bg-primary text-white">
+            <div class="card-body">
+                <h3 class="card-title">{{ pagination.total }}</h3>
+                <p class="card-text">Total Posts</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if posts %}
+    <!-- Posts List -->
+    <div class="row">
+        {% for post in posts %}
+            <div class="col-md-12 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- Post Title -->
+                                <h4 class="card-title mb-2">
+                                    <a href="{{ url_for('blog.view_post', post_id=post.id) }}"
+                                       class="text-decoration-none">
+                                        {{ post.title }}
+                                    </a>
+                                </h4>
+
+                                <!-- Post Meta -->
+                                <p class="text-muted small mb-2">
+                                    <i class="fas fa-calendar"></i>
+                                    {{ post.created.strftime('%B %d, %Y at %I:%M %p') }}
+                                </p>
+
+                                <!-- Post Preview -->
+                                <p class="card-text text-muted">
+                                    {{ post.body[:150] }}{% if post.body|length > 150 %}...{% endif %}
+                                </p>
+                            </div>
+
+                            <div class="col-md-4 text-end">
+                                <!-- Action Buttons -->
+                                <div class="btn-group-vertical" role="group">
+                                    <a href="{{ url_for('blog.view_post', post_id=post.id) }}"
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="{{ url_for('blog.edit_post', post_id=post.id) }}"
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger btn-sm"
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal{{ post.id }}">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Modal for this post -->
+                <div class="modal fade" id="deleteModal{{ post.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-exclamation-triangle"></i> Confirm Deletion
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white"
+                                        data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete <strong>"{{ post.title }}"</strong>?</p>
+                                <p class="text-muted small mb-0">This action cannot be undone.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form method="POST" action="{{ url_for('blog.delete_post', post_id=post.id) }}">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link"
+                       href="{{ url_for('blog.my_posts', page=pagination.prev_num) if pagination.has_prev else '#' }}">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+                </li>
+
+                {% for page_num in range(1, pagination.pages + 1) %}
+                    {% if page_num == pagination.current_page %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                    {% elif page_num >= pagination.current_page - 2 and page_num <= pagination.current_page + 2 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('blog.my_posts', page=page_num) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link"
+                       href="{{ url_for('blog.my_posts', page=pagination.next_num) if pagination.has_next else '#' }}">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
+
+{% else %}
+    <!-- No Posts Message -->
+    <div class="alert alert-info text-center" role="alert">
+        <i class="fas fa-inbox fa-3x mb-3"></i>
+        <h4>You haven't created any posts yet</h4>
+        <p>Share your first story with the community!</p>
+        <a href="{{ url_for('blog.create_post') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create Your First Post
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

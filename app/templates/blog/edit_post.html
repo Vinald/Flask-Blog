@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <!-- Edit Post Card -->
+        <div class="card shadow-sm">
+            <div class="card-body p-5">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <i class="fas fa-edit fa-3x text-primary mb-3"></i>
+                    <h2 class="card-title">Edit Post</h2>
+                    <p class="text-muted">Update your blog post</p>
+                </div>
+
+                <!-- Post Edit Form -->
+                <form method="POST" action="{{ url_for('blog.edit_post', post_id=post.id) }}" novalidate>
+                    <!-- CSRF Token for security -->
+                    {{ form.hidden_tag() }}
+
+                    <!-- Title Field -->
+                    <div class="mb-4">
+                        {{ form.title.label(class="form-label fw-bold") }}
+                        {{ form.title(class="form-control form-control-lg" + (" is-invalid" if form.title.errors else "")) }}
+                        {% if form.title.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Body/Content Field -->
+                    <div class="mb-4">
+                        {{ form.body.label(class="form-label fw-bold") }}
+                        {{ form.body(class="form-control" + (" is-invalid" if form.body.errors else "")) }}
+                        {% if form.body.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.body.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <a href="{{ url_for('blog.view_post', post_id=post.id) }}"
+                           class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Post Info -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-info-circle text-info"></i> Post Information
+                </h6>
+                <p class="mb-1 small">
+                    <strong>Created:</strong> {{ post.created.strftime('%B %d, %Y at %I:%M %p') }}
+                </p>
+                <p class="mb-0 small">
+                    <strong>Author:</strong> {{ post.author.username }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

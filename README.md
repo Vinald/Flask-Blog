@@ -4,15 +4,27 @@ A modern, secure Flask blog application with complete authentication system, Pos
 
 ## Features
 
+### Authentication System
 - ✅ **Complete Authentication System** - Registration, login, logout, profile management
 - ✅ **Secure Password Hashing** - Bcrypt encryption for all passwords
 - ✅ **Session Management** - Flask-Login with "Remember Me" functionality
+- ✅ **Password Management** - Change password with current password verification
+- ✅ **Account Deactivation** - Soft delete that preserves data
+
+### Blog Post Management
+- ✅ **Full CRUD Operations** - Create, read, update, and delete blog posts
+- ✅ **Pagination** - Navigate through posts (10 per page)
+- ✅ **Search Functionality** - Search posts by title or content
+- ✅ **Author Pages** - View all posts by a specific author
+- ✅ **Personal Dashboard** - "My Posts" page to manage your content
+- ✅ **Permission-Based Access** - Only authors and admins can edit/delete posts
+
+### Technical Features
 - ✅ **SQLAlchemy ORM** - Modern database abstraction
 - ✅ **PostgreSQL Database** - Production-ready data storage
 - ✅ **Alembic Migrations** - Version-controlled database schema
 - ✅ **Form Validation** - WTForms with CSRF protection
 - ✅ **Responsive UI** - Bootstrap 5 with Font Awesome icons
-- ✅ **User & Post Models** - Complete blog data structure
 - ✅ **Environment Variables** - Secure configuration management
 - ✅ **Python 3.14 Compatible** - Latest Python features
 
@@ -88,11 +100,14 @@ Flask-Blog/
 │   ├── config.py            # Configuration
 │   ├── errors.py            # Error handlers
 │   ├── forms/
-│   │   └── __init__.py      # WTForms (Registration, Login, ChangePassword)
+│   │   ├── __init__.py      # Auth forms (Registration, Login, ChangePassword)
+│   │   └── blog.py          # Blog forms (PostForm)
 │   ├── api/
 │   │   ├── auth/            # Authentication blueprint
 │   │   │   ├── __init__.py
 │   │   │   └── auth.py      # Auth routes (register, login, logout, profile)
+│   │   ├── blog/            # Blog blueprint
+│   │   │   └── __init__.py  # Blog routes (CRUD operations)
 │   │   └── main.py          # Main routes (home, about)
 │   ├── models/              # Database models
 │   │   ├── __init__.py
@@ -103,17 +118,26 @@ Flask-Blog/
 │   │   ├── user.py          # User schemas
 │   │   └── blog.py          # Post schema
 │   ├── services/            # Business logic
-│   │   └── auth_service.py  # Authentication service layer
+│   │   ├── auth_service.py  # Authentication service layer
+│   │   └── blog_service.py  # Blog service layer
 │   ├── static/              # Static files (CSS, JS, images)
 │   └── templates/           # Jinja2 templates
 │       ├── base.html        # Base template with navbar
 │       ├── index.html       # Home page
 │       ├── about.html       # About page
-│       └── auth/            # Authentication templates
-│           ├── login.html
-│           ├── register.html
-│           ├── profile.html
-│           └── change_password.html
+│       ├── auth/            # Authentication templates
+│       │   ├── login.html
+│       │   ├── register.html
+│       │   ├── profile.html
+│       │   └── change_password.html
+│       └── blog/            # Blog templates
+│           ├── index.html           # All posts listing
+│           ├── view_post.html       # Single post view
+│           ├── create_post.html     # Create post form
+│           ├── edit_post.html       # Edit post form
+│           ├── my_posts.html        # User's posts dashboard
+│           ├── author_posts.html    # Author's public posts
+│           └── search_results.html  # Search results page
 ├── migrations/              # Alembic migrations
 │   └── versions/            # Migration files
 ├── tests/                   # Test suite
@@ -198,6 +222,67 @@ SQLALCHEMY_TRACK_MODIFICATIONS=False
 - ✅ **SQL Injection Prevention** - Parameterized queries via SQLAlchemy ORM
 - ✅ **XSS Prevention** - Automatic template escaping with Jinja2
 - ✅ **Account Status Tracking** - Monitor and control user access
+
+## Blog Post System
+
+### Features
+- **Full CRUD Operations** - Create, read, update, and delete blog posts
+- **Pagination** - Browse posts with 10 posts per page
+- **Search** - Find posts by title or content
+- **Author Filtering** - View all posts by a specific author
+- **Personal Dashboard** - Manage your own posts in "My Posts"
+- **Permission-Based** - Only authors and admins can edit/delete posts
+- **Rich Editor** - Multi-line text area for post content
+- **Post Preview** - Truncated content with "Read More" links
+
+### Routes
+
+| Route | Method | Auth Required | Description |
+|-------|--------|---------------|-------------|
+| `/blog/` | GET | No | All posts with pagination |
+| `/blog/post/<id>` | GET | No | View single post |
+| `/blog/create` | GET, POST | Yes | Create new post |
+| `/blog/post/<id>/edit` | GET, POST | Yes | Edit post (author/admin) |
+| `/blog/post/<id>/delete` | POST | Yes | Delete post (author/admin) |
+| `/blog/my-posts` | GET | Yes | Current user's posts |
+| `/blog/author/<id>` | GET | No | Posts by author |
+| `/blog/search?q=query` | GET | No | Search results |
+
+### Usage
+
+#### Creating a Post
+1. Log in to your account
+2. Click "Create Post" in navbar or blog page
+3. Enter title (3-200 characters) and content (min 10 characters)
+4. Click "Publish"
+
+#### Editing a Post
+1. Navigate to your post
+2. Click "Edit" button (visible to author and admins)
+3. Modify title or content
+4. Click "Save Changes"
+
+#### Deleting a Post
+1. Navigate to your post
+2. Click "Delete" button
+3. Confirm deletion in modal
+
+#### Searching Posts
+1. Use search bar on blog page
+2. Enter keywords
+3. View matching results with pagination
+
+### Service Layer Methods
+
+The `BlogService` class provides:
+- `create_post(author_id, title, body)` - Create new post
+- `get_post_by_id(post_id)` - Retrieve single post
+- `get_all_posts(page, per_page)` - All posts with pagination
+- `get_posts_by_author(author_id, page, per_page)` - Author's posts
+- `update_post(post, title, body)` - Update existing post
+- `delete_post(post)` - Delete post
+- `can_edit_post(user_id, post)` - Check edit permissions
+- `search_posts(query, page, per_page)` - Search functionality
 
 ## Database Migrations
 
