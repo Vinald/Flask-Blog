@@ -16,7 +16,7 @@ We take the security of Flask-Blog seriously. If you discover a security vulnera
 ### How to Report
 
 1. **DO NOT** disclose the vulnerability publicly until it has been addressed
-2. Email the security report to: [INSERT YOUR EMAIL HERE]
+2. Email the security report to: okiror1vinald@gmail.com
 3. Include the following information:
    - Description of the vulnerability
    - Steps to reproduce the issue
