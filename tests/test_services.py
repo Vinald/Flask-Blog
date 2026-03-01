@@ -185,7 +185,10 @@ class TestBlogService:
     def test_delete_post_success(self, app, test_post):
         """Test successful post deletion."""
         with app.app_context():
+            from app.extensions import db
             post_id = test_post.id
+            # Refresh to ensure it's in the current session
+            db.session.add(test_post)
             success, error = BlogService.delete_post(test_post)
 
             assert success is True

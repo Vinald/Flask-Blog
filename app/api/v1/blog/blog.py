@@ -9,8 +9,8 @@ from app.services.blog_service import BlogService
 from app.models import Post
 
 # Create blog blueprint
-# url_prefix='/blog' means all routes will be prefixed with /blog
-blog_bp = Blueprint('blog', __name__, url_prefix='/blog')
+# url_prefix='/api/v1/blog' means all routes will be prefixed with /api/v1/blog
+blog_bp = Blueprint('blog', __name__, url_prefix='/api/v1/blog')
 
 
 @blog_bp.route('/')

@@ -121,7 +121,9 @@ class TestPostModel:
     def test_user_posts_relationship(self, test_user, test_post):
         """Test user-posts relationship."""
         assert len(test_user.posts) > 0
-        assert test_post in test_user.posts
+        # Check if post with same ID exists in user's posts
+        post_ids = [p.id for p in test_user.posts]
+        assert test_post.id in post_ids
 
     def test_post_cascade_delete(self, app, test_user):
         """Test that deleting user deletes their posts."""

@@ -9,7 +9,8 @@ from app.services.auth_service import AuthService
 from urllib.parse import urlparse
 
 # Create authentication blueprint
-auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
+# url_prefix='/api/v1/auth' means all routes will be prefixed with /api/v1/auth
+auth_bp = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])

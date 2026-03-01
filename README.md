@@ -4,6 +4,11 @@ A modern, secure Flask blog application with complete authentication system, Pos
 
 ## Features
 
+### Route Structure
+- ✅ **API Versioning** - All routes follow `/api/v1/{resource}` pattern
+- ✅ **RESTful URLs** - Clean, organized route structure
+- ✅ **Main Routes** - Root level routes (/, /about) for general pages
+
 ### Authentication System
 - ✅ **Complete Authentication System** - Registration, login, logout, profile management
 - ✅ **Secure Password Hashing** - Bcrypt encryption for all passwords
@@ -83,7 +88,7 @@ A modern, secure Flask blog application with complete authentication system, Pos
    ```
 
 8. **Create your first user**
-   - Visit: http://localhost:5000/auth/register
+   - Visit: http://localhost:5000/api/v1/auth/register
    - Fill in the registration form
    - Login and start blogging!
 
@@ -204,12 +209,12 @@ SQLALCHEMY_TRACK_MODIFICATIONS=False
 |-------|--------|---------------|-------------|
 | `/` | GET | No | Home page |
 | `/about` | GET | No | About page |
-| `/auth/register` | GET, POST | No | User registration |
-| `/auth/login` | GET, POST | No | User login |
-| `/auth/logout` | GET | Yes | User logout |
-| `/auth/profile` | GET | Yes | User profile |
-| `/auth/change-password` | GET, POST | Yes | Change password |
-| `/auth/account/delete` | POST | Yes | Deactivate account |
+| `/api/v1/auth/register` | GET, POST | No | User registration |
+| `/api/v1/auth/login` | GET, POST | No | User login |
+| `/api/v1/auth/logout` | GET | Yes | User logout |
+| `/api/v1/auth/profile` | GET | Yes | User profile |
+| `/api/v1/auth/change-password` | GET, POST | Yes | Change password |
+| `/api/v1/auth/account/delete` | POST | Yes | Deactivate account |
 
 ### Security Features
 - ✅ **Bcrypt Password Hashing** - Industry-standard encryption
@@ -236,14 +241,14 @@ SQLALCHEMY_TRACK_MODIFICATIONS=False
 
 | Route | Method | Auth Required | Description |
 |-------|--------|---------------|-------------|
-| `/blog/` | GET | No | All posts with pagination |
-| `/blog/post/<id>` | GET | No | View single post |
-| `/blog/create` | GET, POST | Yes | Create new post |
-| `/blog/post/<id>/edit` | GET, POST | Yes | Edit post (author/admin) |
-| `/blog/post/<id>/delete` | POST | Yes | Delete post (author/admin) |
-| `/blog/my-posts` | GET | Yes | Current user's posts |
-| `/blog/author/<id>` | GET | No | Posts by author |
-| `/blog/search?q=query` | GET | No | Search results |
+| `/api/v1/blog/` | GET | No | All posts with pagination |
+| `/api/v1/blog/post/<id>` | GET | No | View single post |
+| `/api/v1/blog/create` | GET, POST | Yes | Create new post |
+| `/api/v1/blog/post/<id>/edit` | GET, POST | Yes | Edit post (author/admin) |
+| `/api/v1/blog/post/<id>/delete` | POST | Yes | Delete post (author/admin) |
+| `/api/v1/blog/my-posts` | GET | Yes | Current user's posts |
+| `/api/v1/blog/author/<id>` | GET | No | Posts by author |
+| `/api/v1/blog/search?q=query` | GET | No | Search results |
 
 ### Usage
 
