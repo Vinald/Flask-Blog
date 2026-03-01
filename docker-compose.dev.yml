@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: flask_blog_dev_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-flask_blog_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flask_blog_dev_network
+
+  # Flask Application (Development)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: flask_blog_dev_app
+    env_file:
+      - .env
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-flask_blog_dev}
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      # Mount source code for hot reload
+      - .:/app
+      - /app/.venv  # Exclude venv from mount
+      - /app/__pycache__  # Exclude pycache
+    networks:
+      - flask_blog_dev_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 3 &&
+        echo 'Running migrations...' &&
+        flask db upgrade &&
+        echo 'Starting development server...' &&
+        flask run --host=0.0.0.0 --port=5000 --reload
+      "
+
+volumes:
+  postgres_dev_data:
+    name: flask_blog_dev_postgres_data
+
+networks:
+  flask_blog_dev_network:
+    name: flask_blog_dev_network
+    driver: bridge

@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Test Database
+  test_db:
+    image: postgres:15-alpine
+    container_name: flask_blog_test_db
+    environment:
+      POSTGRES_DB: flask_blog_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - test_network
+
+  # Test Runner
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: flask_blog_test
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@test_db:5432/flask_blog_test
+      - SECRET_KEY=test-secret-key
+      - FLASK_ENV=testing
+      - TESTING=1
+    depends_on:
+      test_db:
+        condition: service_healthy
+    networks:
+      - test_network
+    command: >
+      sh -c "
+        echo 'Waiting for test database...' &&
+        sleep 2 &&
+        echo 'Running migrations...' &&
+        flask db upgrade &&
+        echo 'Running tests...' &&
+        python -m pytest tests/ -v --cov=app --cov-report=html --cov-report=term
+      "
+
+networks:
+  test_network:
+    name: flask_blog_test_network
+    driver: bridge

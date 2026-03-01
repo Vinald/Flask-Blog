@@ -33,17 +33,63 @@ A modern, secure Flask blog application with complete authentication system, Pos
 - ✅ **Environment Variables** - Secure configuration management
 - ✅ **Python 3.14 Compatible** - Latest Python features
 
+### API & Documentation
+- ✅ **Swagger UI** - Interactive API documentation at `/api/v1/docs`
+- ✅ **OpenAPI Spec** - Machine-readable API spec
+- ✅ **REST API** - Full JSON API for all operations
+- ✅ **Marshmallow Schemas** - Request/response serialization
+
+### DevOps & Deployment
+- ✅ **Docker Support** - Complete containerization with Docker Compose
+- ✅ **Development Mode** - Hot reload with volume mounting
+- ✅ **Production Ready** - Gunicorn WSGI server with multiple workers
+- ✅ **Health Checks** - Automatic container monitoring
+- ✅ **Database Migrations** - Automated schema updates
+- ✅ **Backup Scripts** - Database backup and restore utilities
+
 ## Quick Start
 
 ### Prerequisites
 
 - Python 3.14+
 - PostgreSQL 12+
-- pip and virtualenv
+## Quick Start
 
-### Installation
+### 🐳 Option 1: Docker (Recommended - 5 minutes)
 
-1. **Clone the repository**
+```bash
+# Clone repository
+git clone https://github.com/yourusername/flask-blog.git
+cd flask-blog
+
+# Option A: Using Makefile (simplest)
+make prod           # Production mode
+# Or: make dev-docker  # Development with hot reload
+
+# Option B: Using Docker Compose
+docker-compose up --build
+
+# Option C: Using management script
+./docker.sh prod-start
+
+# Access: http://localhost:5000
+# API Docs: http://localhost:5000/api/v1/docs
+```
+
+**All Makefile commands:**
+```bash
+make help       # Show all commands
+make test       # Run tests
+make migrate    # Run migrations
+make backup     # Backup database
+make shell      # Flask shell
+```
+
+📖 **Complete Docker documentation:** [DOCKER.md](DOCKER.md)
+
+---
+
+### 💻 Option 2: Manual Setup
    ```bash
    git clone <repository-url>
    cd Flask-Blog
@@ -454,6 +500,56 @@ See `MIGRATION_FIX_INSTRUCTIONS.md` for detailed SQL commands.
 - **Database connection:** Check credentials in `.env` file
 - **CSRF errors:** Ensure forms include `{{ form.hidden_tag() }}`
 - **Login redirects:** Verify `login_manager.login_view` is set correctly
+
+## Docker Deployment
+
+### Quick Start
+
+```bash
+# Production mode (recommended)
+docker-compose up --build -d
+
+# Development mode (hot reload)
+docker-compose -f docker-compose.dev.yml up
+
+# Access application
+# Web: http://localhost:5000
+# API Docs: http://localhost:5000/api/v1/docs
+```
+
+### Management Script
+
+Use the provided `docker.sh` script for easy management:
+
+```bash
+./docker.sh prod-start    # Start production
+./docker.sh dev-start     # Start development
+./docker.sh migrate       # Run migrations
+./docker.sh test          # Run tests
+./docker.sh backup        # Backup database
+./docker.sh logs          # View logs
+./docker.sh help          # Show all commands
+```
+
+### Key Features
+
+- ✅ **PostgreSQL Database** - Persistent data storage
+- ✅ **Gunicorn Server** - Production-ready WSGI server
+- ✅ **Health Checks** - Automatic restart on failure
+- ✅ **Hot Reload** - Development mode with code mounting
+- ✅ **One Command Deploy** - Everything configured automatically
+
+### Docker Files
+
+- `Dockerfile` - Production image
+- `Dockerfile.dev` - Development image with hot reload
+- `docker-compose.yml` - Production setup
+- `docker-compose.dev.yml` - Development setup
+- `docker.sh` - Management utility script
+- `.dockerignore` - Build optimization
+
+📖 **Complete Docker guide:** [DOCKER.md](DOCKER.md)  
+📖 **Installation options:** [INSTALLATION.md](INSTALLATION.md)
 
 ## Contributing
 
