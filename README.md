@@ -1,6 +1,16 @@
 # Flask Blog
 
-A modern, secure Flask blog application with complete authentication system, PostgreSQL database, and Alembic migrations.
+A modern, secure Flask blog application with complete authentication system, PostgreSQL database, RESTful API, and Docker deployment support.
+
+## ✨ Key Highlights
+
+- 🐳 **Docker Ready** - One command deployment with Docker Compose
+- 🔐 **Secure Authentication** - Complete auth system with bcrypt
+- 📝 **Full-Featured Blog** - CRUD operations with search and pagination
+- 🚀 **REST API** - JSON API with Swagger documentation
+- 🎨 **Modern UI** - Bootstrap 5 responsive design
+- 🗄️ **PostgreSQL** - Production-ready database
+- 📦 **Easy Setup** - Multiple installation options (Docker/Manual/Makefile)
 
 ## Features
 
@@ -551,6 +561,27 @@ Use the provided `docker.sh` script for easy management:
 📖 **Complete Docker guide:** [DOCKER.md](DOCKER.md)  
 📖 **Installation options:** [INSTALLATION.md](INSTALLATION.md)
 
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [README.md](README.md) | Main project overview (this file) |
+| [QUICK_REFERENCE.md](QUICK_REFERENCE.md) | Quick command reference |
+| [INSTALLATION.md](INSTALLATION.md) | Detailed setup guide (Manual + Docker) |
+| [DOCKER.md](DOCKER.md) | Complete Docker documentation |
+| [API_DOCUMENTATION.md](API_DOCUMENTATION.md) | REST API reference |
+| [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) | Production deployment steps |
+| [SECURITY.md](SECURITY.md) | Security policy and reporting |
+
+**Quick Commands:**
+- Run `make help` - See all Makefile commands
+- Run `./docker.sh help` - See all Docker commands
+- Run `flask routes` - List all application routes
+
+---
+
 ## Contributing
 
 1. Fork the repository
@@ -558,6 +589,46 @@ Use the provided `docker.sh` script for easy management:
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+---
+
+## 🐳 Docker Integration Summary
+
+### Complete Docker Support Included
+
+**What's Provided:**
+- ✅ Production Dockerfile with Gunicorn (4 workers)
+- ✅ Development Dockerfile with hot reload
+- ✅ Docker Compose for PostgreSQL + Flask
+- ✅ Nginx reverse proxy configuration
+- ✅ Test environment in Docker
+- ✅ Management scripts (`docker.sh` + `Makefile`)
+- ✅ Backup and restore utilities
+- ✅ Complete documentation
+
+**Quick Commands:**
+```bash
+# Production
+docker-compose up --build       # Start
+make prod                       # Start with Makefile
+./docker.sh prod-start         # Start with script
+
+# Development
+docker-compose -f docker-compose.dev.yml up
+make dev-docker
+./docker.sh dev-start
+
+# Management
+./docker.sh help               # All commands
+make help                      # All make commands
+```
+
+**Documentation:**
+- [DOCKER_SUMMARY.md](DOCKER_SUMMARY.md) - Complete overview
+- [DOCKER.md](DOCKER.md) - Detailed guide
+- [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Command cheat sheet
+
+---
 
 ## License
 

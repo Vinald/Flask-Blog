@@ -1,0 +1,76 @@
+version: '3.8'
+
+# Production deployment with Nginx reverse proxy
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: flask_blog_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-flask_blog}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flask_blog_network
+    restart: unless-stopped
+
+  # Flask Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flask_blog_app
+    env_file:
+      - .env
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-flask_blog}
+      - FLASK_ENV=production
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./instance:/app/instance
+    networks:
+      - flask_blog_network
+    restart: unless-stopped
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 5 &&
+        echo 'Running migrations...' &&
+        flask db upgrade &&
+        echo 'Starting application...' &&
+        gunicorn --bind 0.0.0.0:5000 --workers 4 --timeout 120 --access-logfile - --error-logfile - wsgi:app
+      "
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: flask_blog_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - web
+    networks:
+      - flask_blog_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    name: flask_blog_postgres_data
+
+networks:
+  flask_blog_network:
+    name: flask_blog_network
+    driver: bridge
