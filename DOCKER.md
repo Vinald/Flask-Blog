@@ -1,53 +1,484 @@
-# Flask Blog - Docker Setup
+# Flask Blog - Docker Guide
 
-This directory contains Docker configuration files for running Flask Blog in containers.
+Complete guide for running Flask Blog with Docker and Docker Compose.
 
-## Files
+---
 
-- `Dockerfile` - Production container image
-- `Dockerfile.dev` - Development container with hot reload
-- `docker-compose.yml` - Production setup with PostgreSQL
-- `docker-compose.dev.yml` - Development setup with hot reload
-- `.dockerignore` - Files to exclude from Docker build
+## 🚀 Quick Start
 
-## Quick Start with Docker
-
-### Prerequisites
-
-- Docker (version 20.10+)
-- Docker Compose (version 2.0+)
-
-### Development Setup
-
-1. **Start development environment:**
+### Production (5 minutes)
 ```bash
-docker-compose -f docker-compose.dev.yml up --build
+# 1. Clone and enter directory
+git clone <repo-url>
+cd flask-blog
+
+# 2. Start with Docker Compose
+docker-compose up --build -d
+
+# 3. Access application
+# Web: http://localhost:5000
+# API: http://localhost:5000/api/v1/docs
 ```
 
-2. **Access the application:**
-- Web: http://localhost:5000
-- API Docs: http://localhost:5000/api/v1/docs
-- Database: localhost:5432
-
-3. **Stop the environment:**
+### Development (with hot reload)
 ```bash
+docker-compose -f docker-compose.dev.yml up
+```
+
+---
+
+## 📋 Prerequisites
+
+- Docker 20.10+
+- Docker Compose 2.0+
+- 2GB free disk space
+
+---
+
+## 🎯 Three Ways to Manage
+
+### 1. Docker Compose (Standard)
+```bash
+docker-compose up --build -d      # Start
+docker-compose logs -f            # Logs
+docker-compose down               # Stop
+```
+
+### 2. Makefile (Simplest)
+```bash
+make prod          # Start production
+make dev-docker    # Start development
+make test-docker   # Run tests
+make help          # All commands
+```
+
+### 3. Management Script (Most Features)
+```bash
+./docker.sh prod-start             # Start production
+./docker.sh dev-start              # Start development  
+./docker.sh migrate                # Run migrations
+./docker.sh backup                 # Backup database
+./docker.sh test                   # Run tests
+./docker.sh help                   # All commands
+```
+
+---
+
+## 📦 What's Included
+
+### Docker Files
+- `Dockerfile` - Production image (Gunicorn + Python 3.11)
+- `Dockerfile.dev` - Development image (Flask dev server)
+- `docker-compose.yml` - Production: Flask + PostgreSQL
+- `docker-compose.dev.yml` - Development with hot reload
+- `docker-compose.test.yml` - Isolated test environment
+- `docker-compose.prod.yml` - Production with Nginx
+- `.dockerignore` - Build optimization
+
+### Architecture
+```
+┌─────────────────────────┐
+│  Nginx (Optional)       │  Port 80/443
+│  - SSL/HTTPS            │
+│  - Reverse Proxy        │
+└───────────┬─────────────┘
+            │
+┌───────────▼─────────────┐
+│  Flask App              │  Port 5000
+│  - Gunicorn (4 workers)│
+│  - Non-root user        │
+│  - Health checks        │
+└───────────┬─────────────┘
+            │
+┌───────────▼─────────────┐
+│  PostgreSQL 15          │  Port 5432
+│  - Persistent volume    │
+│  - Health checks        │
+└─────────────────────────┘
+```
+
+---
+
+## ⚙️ Configuration
+
+### Environment Variables (.env)
+```env
+# Database
+POSTGRES_DB=flask_blog
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=secure_password_here
+
+# Flask
+SECRET_KEY=your-secret-key-change-this
+FLASK_ENV=production
+
+# Optional: pgAdmin
+PGADMIN_EMAIL=admin@example.com
+PGADMIN_PASSWORD=admin
+```
+
+---
+
+## 🔧 Common Operations
+
+### Starting & Stopping
+```bash
+# Start
+docker-compose up -d
+
+# Stop
+docker-compose down
+
+# Restart specific service
+docker-compose restart web
+
+# View status
+docker-compose ps
+```
+
+### Logs & Monitoring
+```bash
+# All logs
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f web
+docker-compose logs -f db
+
+# Last 100 lines
+docker-compose logs --tail=100 web
+
+# Resource usage
+docker stats
+```
+
+### Database Operations
+```bash
+# Run migrations
+docker-compose exec web flask db upgrade
+
+# Create migration
+docker-compose exec web flask db migrate -m "description"
+
+# Backup database
+./docker.sh backup
+# Or manually:
+docker-compose exec -T db pg_dump -U postgres flask_blog > backup.sql
+
+# Restore database
+./docker.sh restore backup.sql
+# Or manually:
+docker-compose exec -T db psql -U postgres flask_blog < backup.sql
+
+# PostgreSQL shell
+docker-compose exec db psql -U postgres flask_blog
+```
+
+### Application Management
+```bash
+# Flask shell
+docker-compose exec web flask shell
+
+# Container shell
+docker-compose exec web /bin/bash
+
+# Run tests
+docker-compose exec web pytest tests/ -v
+
+# View routes
+docker-compose exec web flask routes
+```
+
+### Creating Admin User
+```bash
+docker-compose exec web flask shell
+```
+```python
+from app.models import User
+from app.extensions import db
+
+admin = User(username='admin', email='admin@example.com', is_admin=True)
+admin.set_password('SecurePassword123')
+db.session.add(admin)
+db.session.commit()
+exit()
+```
+
+---
+
+## 🛠️ Development Workflow
+
+### Setup
+```bash
+# Start dev environment (first time)
+docker-compose -f docker-compose.dev.yml up --build
+
+# Subsequent starts
+docker-compose -f docker-compose.dev.yml up
+```
+
+### Code Changes
+- Changes auto-reload (volume mounted)
+- No rebuild needed for code changes
+- Rebuild only for dependency changes
+
+### Running Tests
+```bash
+# Quick test
+./docker.sh test
+
+# Or detailed
+docker-compose -f docker-compose.test.yml up --abort-on-container-exit
+
+# Or in running container
+docker-compose exec web pytest tests/ -v
+```
+
+### Database Changes
+```bash
+# 1. Modify models in app/models/
+# 2. Create migration
+./docker.sh create-migration "Add new field"
+
+# 3. Apply migration
+./docker.sh migrate
+
+# 4. Verify
+docker-compose exec web flask shell
+>>> from app.models import User
+>>> User.query.first()
+```
+
+---
+
+## 🚀 Production Deployment
+
+### Pre-Deployment Checklist
+
+1. ✅ Set strong `SECRET_KEY` in .env
+2. ✅ Set secure `POSTGRES_PASSWORD`
+3. ✅ Set `FLASK_ENV=production`
+4. ✅ Test backup/restore works
+5. ✅ All tests passing
+
+### Deploy Steps
+
+```bash
+# 1. Pull latest code
+git pull origin main
+
+# 2. Backup current database
+./docker.sh backup
+
+# 3. Build new images
+docker-compose build --no-cache
+
+# 4. Stop old containers
+docker-compose down
+
+# 5. Start new containers
+docker-compose up -d
+
+# 6. Run migrations
+docker-compose exec web flask db upgrade
+
+# 7. Verify
+curl http://localhost:5000/about
+
+# 8. Monitor logs
+docker-compose logs -f web
+```
+
+### With Nginx (Production)
+```bash
+# Use production compose file
+docker-compose -f docker-compose.prod.yml up --build -d
+
+# Setup SSL certificates in nginx/ssl/
+# See nginx/ssl/README.md
+```
+
+---
+
+## 🔍 Troubleshooting
+
+### Container Won't Start
+```bash
+# Check logs
+docker-compose logs web
+
+# Check all services
+docker-compose ps
+
+# Rebuild from scratch
+docker-compose down -v
+docker-compose up --build
+```
+
+### Database Connection Failed
+```bash
+# Check DB is running
+docker-compose ps db
+
+# Check DB logs
+docker-compose logs db
+
+# Test connection
+docker-compose exec web nc -zv db 5432
+
+# Restart DB
+docker-compose restart db
+```
+
+### Port Already in Use
+```bash
+# Option 1: Stop conflicting process
+lsof -ti:5000 | xargs kill -9
+
+# Option 2: Change port in docker-compose.yml
+ports:
+  - "5001:5000"
+```
+
+### Migrations Not Running
+```bash
+# Run manually
+docker-compose exec web flask db upgrade
+
+# Check migration history
+docker-compose exec web flask db history
+
+# Reset migrations (dev only!)
+docker-compose exec web flask db downgrade base
+docker-compose exec web flask db upgrade
+```
+
+### Out of Disk Space
+```bash
+# Clean Docker cache
+docker system prune -a
+
+# Remove unused volumes
+docker volume prune
+
+# Remove specific volume (DELETES DATA!)
+docker-compose down -v
+```
+
+---
+
+## 🧹 Cleanup
+
+### Stop Everything
+```bash
+docker-compose down
 docker-compose -f docker-compose.dev.yml down
 ```
 
-### Production Setup
-
-1. **Create production .env file:**
+### Remove Volumes (Deletes Data!)
 ```bash
-cp .env.example .env
-# Edit .env with production values
+docker-compose down -v
 ```
 
-2. **Build and start:**
+### Complete Cleanup
 ```bash
-docker-compose up --build -d
+# Remove containers, images, volumes
+docker-compose down -v --rmi all
+
+# Clean Docker system
+docker system prune -a --volumes
 ```
 
-3. **Access the application:**
+---
+
+## 📊 Manual vs Docker Comparison
+
+| Feature | Manual Setup | Docker Setup |
+|---------|--------------|--------------|
+| Setup Time | 15-30 min | 5 min |
+| Prerequisites | Python, PostgreSQL, venv | Docker only |
+| Portability | OS-dependent | Works anywhere |
+| Database | Manual install | Auto-configured |
+| Updates | pip + migrations | Rebuild image |
+| Isolation | System packages | Containerized |
+| Production | Complex | One command |
+
+**Recommendation:** Use Docker for quick start and production. Use manual for learning.
+
+---
+
+## 🎓 Docker Commands Reference
+
+### Essential Commands
+```bash
+docker-compose up -d           # Start detached
+docker-compose down            # Stop
+docker-compose logs -f         # Logs
+docker-compose ps              # Status
+docker-compose restart         # Restart
+docker-compose exec web bash  # Shell
+```
+
+### Using Management Script
+```bash
+./docker.sh help              # All commands
+./docker.sh prod-start        # Start production
+./docker.sh dev-start         # Start development
+./docker.sh migrate           # Run migrations
+./docker.sh test              # Run tests
+./docker.sh backup            # Backup DB
+./docker.sh restore file.sql  # Restore DB
+./docker.sh shell             # Container shell
+./docker.sh flask-shell       # Flask shell
+```
+
+### Using Makefile
+```bash
+make help              # All commands
+make prod              # Production
+make dev-docker        # Development
+make test-docker       # Tests
+make migrate           # Migrations
+make backup            # Backup
+```
+
+---
+
+## 🔐 Security Best Practices
+
+### Implemented
+- ✅ Non-root user in container (appuser)
+- ✅ Minimal base image (Python 3.11 slim)
+- ✅ No secrets in Dockerfile
+- ✅ Environment variable configuration
+- ✅ Health checks enabled
+
+### Recommended for Production
+- [ ] Use Docker secrets for sensitive data
+- [ ] Enable HTTPS with SSL certificates
+- [ ] Set resource limits (CPU, memory)
+- [ ] Regular security updates: `docker-compose pull`
+- [ ] Scan images: `docker scan flask-blog`
+- [ ] Use specific image versions (not :latest)
+
+---
+
+## 📞 Support
+
+**Issues?** 
+- Check logs: `docker-compose logs -f web`
+- Check status: `docker-compose ps`
+- Restart: `docker-compose restart`
+- Full docs: See README.md
+
+**Questions?**
+- Open GitHub issue
+- Check SECURITY.md for vulnerabilities
+
+---
+
+**Happy Coding! 🎉**
+
 - Web: http://localhost:5000
 - API Docs: http://localhost:5000/api/v1/docs
 

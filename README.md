@@ -558,27 +558,66 @@ Use the provided `docker.sh` script for easy management:
 - `docker.sh` - Management utility script
 - `.dockerignore` - Build optimization
 
-📖 **Complete Docker guide:** [DOCKER.md](DOCKER.md)  
-📖 **Installation options:** [INSTALLATION.md](INSTALLATION.md)
+📖 **Complete Docker guide:** [DOCKER.md](DOCKER.md)
+
+---
+
+## 🧪 Testing
+
+### Run Tests
+
+```bash
+# All tests
+pytest tests/ -v
+
+# Specific test file
+pytest tests/test_auth.py -v
+
+# With coverage
+pytest tests/ --cov=app --cov-report=html
+
+# In Docker
+./docker.sh test
+make test-docker
+```
+
+### Test Suite
+
+- **132 tests** covering all features
+- **80%+ code coverage**
+- **7 test modules:**
+  - `test_auth.py` - Authentication (54 tests)
+  - `test_blog.py` - Blog posts (30 tests)
+  - `test_api.py` - REST API (29 tests)
+  - `test_services.py` - Business logic (12 tests)
+  - `test_models.py` - Database models (13 tests)
+  - `test_integration.py` - End-to-end flows (10 tests)
+
+### Test Categories
+
+- ✅ User registration and validation
+- ✅ Login (username/email) with "remember me"
+- ✅ Password change and hashing
+- ✅ Blog CRUD operations
+- ✅ Permission checks (author/admin)
+- ✅ Search functionality
+- ✅ Pagination
+- ✅ API endpoints (JSON responses)
+- ✅ Model relationships
+- ✅ Service layer logic
 
 ---
 
 ## 📚 Documentation
 
-| Document | Description |
-|----------|-------------|
-| [README.md](README.md) | Main project overview (this file) |
-| [QUICK_REFERENCE.md](QUICK_REFERENCE.md) | Quick command reference |
-| [INSTALLATION.md](INSTALLATION.md) | Detailed setup guide (Manual + Docker) |
-| [DOCKER.md](DOCKER.md) | Complete Docker documentation |
-| [API_DOCUMENTATION.md](API_DOCUMENTATION.md) | REST API reference |
-| [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) | Production deployment steps |
-| [SECURITY.md](SECURITY.md) | Security policy and reporting |
+- **[README.md](README.md)** - Project overview and quick start (this file)
+- **[DOCKER.md](DOCKER.md)** - Complete Docker setup and deployment guide
+- **[SECURITY.md](SECURITY.md)** - Security policy and vulnerability reporting
 
 **Quick Commands:**
-- Run `make help` - See all Makefile commands
-- Run `./docker.sh help` - See all Docker commands
-- Run `flask routes` - List all application routes
+- `make help` - All Makefile commands
+- `./docker.sh help` - All Docker commands  
+- `flask routes` - List application routes
 
 ---
 
@@ -624,9 +663,8 @@ make help                      # All make commands
 ```
 
 **Documentation:**
-- [DOCKER_SUMMARY.md](DOCKER_SUMMARY.md) - Complete overview
-- [DOCKER.md](DOCKER.md) - Detailed guide
-- [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Command cheat sheet
+- [DOCKER.md](DOCKER.md) - Complete Docker guide
+- [SECURITY.md](SECURITY.md) - Security policy
 
 ---
 
