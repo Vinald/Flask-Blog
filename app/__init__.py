@@ -57,9 +57,9 @@ def create_app(test_config=None):
         from app.models import User, Post
 
     # Register blueprints
-    from app.api.auth import auth_bp
-    from app.api.main import main_bp
-    from app.api.blog import blog_bp
+    from app.api.v1.auth import auth_bp
+    from app.api.v1.main import main_bp
+    from app.api.v1.blog import blog_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
