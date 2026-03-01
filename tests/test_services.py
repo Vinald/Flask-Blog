@@ -185,18 +185,18 @@ class TestBlogService:
     def test_delete_post_success(self, app, test_post):
         """Test successful post deletion."""
         with app.app_context():
-            from app.extensions import db
             post_id = test_post.id
-            # Refresh to ensure it's in the current session
-            db.session.add(test_post)
-            success, error = BlogService.delete_post(test_post)
+            # Get fresh instance from current session
+            post = Post.query.get(post_id)
+
+            success, error = BlogService.delete_post(post)
 
             assert success is True
             assert error is None
 
             # Verify deletion
-            post = Post.query.get(post_id)
-            assert post is None
+            deleted_post = Post.query.get(post_id)
+            assert deleted_post is None
 
     def test_can_edit_post_author(self, app, test_user, test_post):
         """Test that author can edit own post."""

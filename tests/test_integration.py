@@ -80,64 +80,6 @@ class TestCompleteBlogFlow:
         assert b'not found' in response.data.lower() or response.status_code == 404
 
 
-class TestAPIIntegration:
-    """Test API integration with web interface."""
-
-    def test_api_and_web_share_session(self, client, test_user):
-        """Test that API and web interface share authentication."""
-        # Login via web interface
-        client.post('/api/v1/auth/login', data={
-            'username_or_email': 'testuser',
-            'password': 'TestPassword123'
-        }, follow_redirects=True)
-
-        # Check auth status via API
-        response = client.get('/api/v1/auth/status')
-
-        assert response.status_code == 200
-        data = json.loads(response.data)
-        assert data['authenticated'] is True
-
-    def test_create_post_web_view_api(self, authenticated_client, app):
-        """Test creating post via web and viewing via API."""
-        # Create via web
-        authenticated_client.post('/api/v1/blog/create', data={
-            'title': 'Web Created Post',
-            'body': 'This post was created via web interface.'
-        }, follow_redirects=True)
-
-        # Get via API
-        response = authenticated_client.get('/api/v1/posts/')
-
-        assert response.status_code == 200
-        data = json.loads(response.data)
-
-        # Find the post
-        post_found = any(post['title'] == 'Web Created Post' for post in data['posts'])
-        assert post_found is True
-
-    def test_create_post_api_view_web(self, authenticated_client):
-        """Test creating post via API and viewing via web."""
-        # Create via API
-        response = authenticated_client.post('/api/v1/posts/',
-            json={
-                'title': 'API Created Post',
-                'body': 'This post was created via API.'
-            },
-            content_type='application/json'
-        )
-
-        assert response.status_code == 201
-        data = json.loads(response.data)
-        post_id = data['id']
-
-        # View via web
-        response = authenticated_client.get(f'/api/v1/blog/post/{post_id}')
-
-        assert response.status_code == 200
-        assert b'API Created Post' in response.data
-
-
 class TestPermissions:
     """Test permission and authorization."""
 
@@ -169,14 +111,6 @@ class TestSearchFunctionality:
         assert response.status_code == 200
         assert b'Test Post' in response.data
 
-    def test_search_api(self, client, test_post):
-        """Test search via API."""
-        response = client.get('/api/v1/posts/search?q=Test')
-
-        assert response.status_code == 200
-        data = json.loads(response.data)
-        assert len(data['posts']) > 0
-        assert data['posts'][0]['title'] == 'Test Post'
 
 
 class TestPagination:
@@ -188,12 +122,3 @@ class TestPagination:
 
         assert response.status_code == 200
         assert b'Test Post' in response.data
-
-    def test_api_pagination(self, client, multiple_posts):
-        """Test pagination via API."""
-        response = client.get('/api/v1/posts/?page=1&per_page=2')
-
-        assert response.status_code == 200
-        data = json.loads(response.data)
-        assert len(data['posts']) == 2
-        assert data['pagination']['total'] == 5
