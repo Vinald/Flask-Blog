@@ -74,9 +74,6 @@ A modern, secure Flask blog application with complete authentication system, Pos
    ```bash
    # Apply all migrations to create tables
    flask db upgrade
-   
-   # Or if you encounter issues, use the migration script:
-   python apply_migration_now.py
    ```
 
 7. **Run the application**
