@@ -64,8 +64,7 @@ class RegistrationForm(FlaskForm):
 
     submit = SubmitField('Register', render_kw={'class': 'btn btn-primary btn-block'})
 
-    @staticmethod
-    def validate_username(username):
+    def validate_username(self, username):
         """
         Custom validator to check if username already exists.
         Raises ValidationError if username is taken.
@@ -74,8 +73,7 @@ class RegistrationForm(FlaskForm):
         if user:
             raise ValidationError('Username already exists. Please choose a different one.')
 
-    @staticmethod
-    def validate_email(email):
+    def validate_email(self, email):
         """
         Custom validator to check if email already exists.
         Raises ValidationError if email is already registered.
