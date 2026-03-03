@@ -58,16 +58,23 @@ def create_app(test_config=None):
     with app.app_context():
         from app.models import User, Post
 
-    # Register blueprints
-    from app.api.v1.auth import auth_bp
-    from app.api.v1.main import main_bp
-    from app.api.v1.blog import blog_bp
+    # Register web (HTML) blueprints
+    from app.web.auth import auth_bp
+    from app.web.main import main_bp
+    from app.web.blog import blog_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(blog_bp)
 
-    # Initialize Swagger UI documentation
+    # Register JSON API blueprints
+    from app.api.v1.auth.api import auth_api_bp
+    from app.api.v1.blog.api import blog_api_bp
+
+    app.register_blueprint(auth_api_bp)
+    app.register_blueprint(blog_api_bp)
+
+    # Initialize Swagger UI documentation (only documents /api/v1/ JSON routes)
     Swagger(app, config=SWAGGER_CONFIG, template=SWAGGER_TEMPLATE)
 
     # Context processor to make utilities available in all templates

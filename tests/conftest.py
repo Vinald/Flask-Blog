@@ -187,7 +187,7 @@ def authenticated_client(client, test_user):
     Create an authenticated test client.
     """
     # Login the test user
-    client.post('/api/v1/auth/login', data={
+    client.post('/auth/login', data={
         'username_or_email': 'testuser',
         'password': 'TestPassword123',
         'remember_me': False
@@ -196,7 +196,7 @@ def authenticated_client(client, test_user):
     yield client
 
     # Logout
-    client.get('/api/v1/auth/logout')
+    client.get('/auth/logout')
 
 
 @pytest.fixture(scope='function')
@@ -205,7 +205,7 @@ def authenticated_admin_client(client, admin_user):
     Create an authenticated admin client.
     """
     # Login the admin user
-    client.post('/api/v1/auth/login', data={
+    client.post('/auth/login', data={
         'username_or_email': 'adminuser',
         'password': 'AdminPassword123',
         'remember_me': False
@@ -214,4 +214,4 @@ def authenticated_admin_client(client, admin_user):
     yield client
 
     # Logout
-    client.get('/api/v1/auth/logout')
+    client.get('/auth/logout')

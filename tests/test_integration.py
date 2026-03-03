@@ -12,7 +12,7 @@ class TestCompleteAuthFlow:
     def test_register_login_logout_flow(self, client):
         """Test complete user journey: register -> login -> logout."""
         # Register
-        response = client.post('/api/v1/auth/register', data={
+        response = client.post('/auth/register', data={
             'username': 'flowuser',
             'email': 'flow@example.com',
             'password': 'FlowPassword123',
@@ -22,7 +22,7 @@ class TestCompleteAuthFlow:
         assert b'Account created successfully' in response.data
 
         # Login
-        response = client.post('/api/v1/auth/login', data={
+        response = client.post('/auth/login', data={
             'username_or_email': 'flowuser',
             'password': 'FlowPassword123'
         }, follow_redirects=True)
@@ -30,12 +30,12 @@ class TestCompleteAuthFlow:
         assert b'Welcome back' in response.data
 
         # Access profile
-        response = client.get('/api/v1/auth/profile')
+        response = client.get('/auth/profile')
         assert response.status_code == 200
         assert b'flowuser' in response.data
 
         # Logout
-        response = client.get('/api/v1/auth/logout', follow_redirects=True)
+        response = client.get('/auth/logout', follow_redirects=True)
         assert b'logged out' in response.data
 
 
@@ -45,7 +45,7 @@ class TestCompleteBlogFlow:
     def test_create_view_edit_delete_post_flow(self, authenticated_client, app):
         """Test complete post lifecycle: create -> view -> edit -> delete."""
         # Create post
-        response = authenticated_client.post('/api/v1/blog/create', data={
+        response = authenticated_client.post('/blog/create', data={
             'title': 'Flow Test Post',
             'body': 'This is a complete flow test post.'
         }, follow_redirects=True)
@@ -59,12 +59,12 @@ class TestCompleteBlogFlow:
             post_id = post.id
 
         # View post
-        response = authenticated_client.get(f'/api/v1/blog/post/{post_id}')
+        response = authenticated_client.get(f'/blog/post/{post_id}')
         assert response.status_code == 200
         assert b'Flow Test Post' in response.data
 
         # Edit post
-        response = authenticated_client.post(f'/api/v1/blog/post/{post_id}/edit', data={
+        response = authenticated_client.post(f'/blog/post/{post_id}/edit', data={
             'title': 'Updated Flow Post',
             'body': 'This content has been updated.'
         }, follow_redirects=True)
@@ -72,11 +72,11 @@ class TestCompleteBlogFlow:
         assert b'updated successfully' in response.data
 
         # Delete post
-        response = authenticated_client.post(f'/api/v1/blog/post/{post_id}/delete', follow_redirects=True)
+        response = authenticated_client.post(f'/blog/post/{post_id}/delete', follow_redirects=True)
         assert b'deleted successfully' in response.data
 
         # Verify deletion
-        response = authenticated_client.get(f'/api/v1/blog/post/{post_id}', follow_redirects=True)
+        response = authenticated_client.get(f'/blog/post/{post_id}', follow_redirects=True)
         assert b'not found' in response.data.lower() or response.status_code == 404
 
 
@@ -85,7 +85,7 @@ class TestPermissions:
 
     def test_admin_can_edit_any_post(self, authenticated_admin_client, test_post):
         """Test that admin can edit any user's post."""
-        response = authenticated_admin_client.get(f'/api/v1/blog/post/{test_post.id}/edit')
+        response = authenticated_admin_client.get(f'/blog/post/{test_post.id}/edit')
 
         assert response.status_code == 200
         assert b'Edit Post' in response.data
@@ -93,7 +93,7 @@ class TestPermissions:
     def test_admin_can_delete_any_post(self, authenticated_admin_client, test_post):
         """Test that admin can delete any user's post."""
         response = authenticated_admin_client.post(
-            f'/api/v1/blog/post/{test_post.id}/delete',
+            f'/blog/post/{test_post.id}/delete',
             follow_redirects=True
         )
 
@@ -106,7 +106,7 @@ class TestSearchFunctionality:
 
     def test_search_web(self, client, test_post):
         """Test search via web interface."""
-        response = client.get('/api/v1/blog/search?q=Test')
+        response = client.get('/blog/search?q=Test')
 
         assert response.status_code == 200
         assert b'Test Post' in response.data
@@ -118,7 +118,7 @@ class TestPagination:
 
     def test_web_pagination(self, client, multiple_posts):
         """Test pagination on web interface."""
-        response = client.get('/api/v1/blog/?page=1')
+        response = client.get('/blog/?page=1')
 
         assert response.status_code == 200
         assert b'Test Post' in response.data

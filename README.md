@@ -161,13 +161,23 @@ Flask-Blog/
 │   ├── forms/
 │   │   ├── __init__.py      # Auth forms (Registration, Login, ChangePassword)
 │   │   └── blog.py          # Blog forms (PostForm)
-│   ├── api/
-│   │   ├── auth/            # Authentication blueprint
+│   ├── web/                 # HTML/Web routes (for browsers)
+│   │   ├── __init__.py
+│   │   ├── main.py          # Main routes (home, about)
+│   │   ├── auth/            # Authentication HTML routes
 │   │   │   ├── __init__.py
-│   │   │   └── auth.py      # Auth routes (register, login, logout, profile)
-│   │   ├── blog/            # Blog blueprint
-│   │   │   └── __init__.py  # Blog routes (CRUD operations)
-│   │   └── main.py          # Main routes (home, about)
+│   │   │   └── views.py     # Auth pages (register, login, logout, profile)
+│   │   └── blog/            # Blog HTML routes
+│   │       ├── __init__.py
+│   │       └── views.py     # Blog pages (CRUD operations, search)
+│   ├── api/                 # JSON API routes (for programmatic access)
+│   │   └── v1/              # API version 1
+│   │       ├── auth/        # Authentication API
+│   │       │   ├── __init__.py
+│   │       │   └── api.py   # JSON auth endpoints (documented in Swagger)
+│   │       └── blog/        # Blog API
+│   │           ├── __init__.py
+│   │           └── api.py   # JSON blog endpoints (documented in Swagger)
 │   ├── models/              # Database models
 │   │   ├── __init__.py
 │   │   ├── user.py          # User model with authentication
@@ -260,18 +270,63 @@ SQLALCHEMY_TRACK_MODIFICATIONS=False
 - **Account Deactivation** - Soft delete that preserves data
 - **Session Security** - Flask-Login with secure cookies, CSRF protection
 
-### Routes
+### Route Architecture
+
+Flask Blog uses a **dual-interface architecture** with clear separation between HTML and JSON API routes:
+
+#### 🌐 **HTML Routes** (`app/web/`)
+These serve HTML pages for browsers and users:
+- **Authentication**: `/auth/*` (login, register, profile, etc.)
+- **Blog Pages**: `/blog/*` (view posts, create, edit, search, etc.)  
+- **Main Pages**: `/`, `/about` (home and information pages)
+
+#### 🔌 **JSON API Routes** (`app/api/v1/`)
+These serve JSON data for programmatic access and mobile apps:
+- **Auth API**: `/api/v1/auth/*` (registration, login, profile management)
+- **Blog API**: `/api/v1/blog/*` (CRUD operations, search, pagination)
+- **API Documentation**: `/api/v1/docs/` (Interactive Swagger UI)
+
+#### 📚 **Benefits of This Architecture**
+1. **Clear Separation**: HTML and API logic are completely separate
+2. **Maintainability**: Easy to maintain and extend each interface independently
+3. **API Documentation**: Only JSON APIs are documented in Swagger (clean, focused docs)
+4. **Flexibility**: Frontend developers can use JSON APIs, while users get full HTML interface
+5. **Testing**: Both interfaces can be tested independently
+
+### HTML Routes (Web Interface)
 
 | Route | Method | Auth Required | Description |
 |-------|--------|---------------|-------------|
 | `/` | GET | No | Home page |
 | `/about` | GET | No | About page |
-| `/api/v1/auth/register` | GET, POST | No | User registration |
-| `/api/v1/auth/login` | GET, POST | No | User login |
-| `/api/v1/auth/logout` | GET | Yes | User logout |
-| `/api/v1/auth/profile` | GET | Yes | User profile |
-| `/api/v1/auth/change-password` | GET, POST | Yes | Change password |
-| `/api/v1/auth/account/delete` | POST | Yes | Deactivate account |
+| `/auth/register` | GET, POST | No | User registration form |
+| `/auth/login` | GET, POST | No | User login form |
+| `/auth/logout` | GET | Yes | User logout |
+| `/auth/profile` | GET | Yes | User profile page |
+| `/auth/change-password` | GET, POST | Yes | Change password form |
+| `/blog/` | GET | No | All blog posts (paginated) |
+| `/blog/post/<id>` | GET | No | View single post |
+| `/blog/create` | GET, POST | Yes | Create new post form |
+| `/blog/post/<id>/edit` | GET, POST | Yes | Edit post form |
+| `/blog/post/<id>/delete` | POST | Yes | Delete post |
+| `/blog/my-posts` | GET | Yes | Current user's posts |
+| `/blog/author/<id>` | GET | No | Posts by specific author |
+| `/blog/search` | GET | No | Search posts |
+
+### JSON API Routes (Programmatic Interface)
+
+| Route | Method | Auth Required | Description |
+|-------|--------|---------------|-------------|
+| `/api/v1/auth/register` | POST | No | Register new user (JSON) |
+| `/api/v1/auth/login` | POST | No | User login (JSON) |
+| `/api/v1/auth/logout` | POST | Yes | User logout (JSON) |
+| `/api/v1/auth/profile` | GET | Yes | User profile data (JSON) |
+| `/api/v1/blog/posts` | GET | No | List posts with pagination (JSON) |
+| `/api/v1/blog/posts/<id>` | GET, PUT, DELETE | Varies | Post CRUD operations (JSON) |
+| `/api/v1/blog/my-posts` | GET | Yes | Current user's posts (JSON) |
+| `/api/v1/blog/author/<id>` | GET | No | Posts by author (JSON) |
+| `/api/v1/blog/search` | GET | No | Search posts (JSON) |
+| `/api/v1/docs/` | GET | No | **Interactive Swagger UI Documentation** |
 
 ### Security Features
 - ✅ **Bcrypt Password Hashing** - Industry-standard encryption

@@ -9,7 +9,7 @@ SWAGGER_CONFIG = {
         {
             "endpoint": "apispec",
             "route": "/api/v1/apispec.json",
-            "rule_filter": lambda rule: True,
+            "rule_filter": lambda rule: rule.rule.startswith('/api/v1/') and not rule.rule.startswith('/api/v1/docs') and not rule.rule.startswith('/api/v1/apispec'),
             "model_filter": lambda tag: True,
         }
     ],
