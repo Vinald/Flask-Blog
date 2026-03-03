@@ -155,6 +155,7 @@ Flask-Blog/
 ├── app/
 │   ├── __init__.py          # Application factory with Flask-Login
 │   ├── extensions.py        # SQLAlchemy, Marshmallow, Flask-Login, Bcrypt
+│   ├── swagger_config.py    # Swagger/Flasgger configuration
 │   ├── config.py            # Configuration
 │   ├── errors.py            # Error handlers
 │   ├── forms/
@@ -372,6 +373,64 @@ Uses Marshmallow for serialization/validation:
 - **UserSchema** - User output (excludes password)
 - **UserCreateSchema** - User creation (includes password)
 - **PostSchema** - Post serialization with nested author
+
+## 📖 Swagger UI / API Documentation
+
+The application includes interactive API documentation powered by **Flasgger** (Swagger UI). This provides a web-based interface to explore, test, and understand all available API endpoints.
+
+### Accessing the Documentation
+
+| Environment | URL |
+|---|---|
+| **Local Development** | [http://localhost:5000/api/v1/docs](http://localhost:5000/api/v1/docs) |
+| **Docker** | [http://localhost:5000/api/v1/docs](http://localhost:5000/api/v1/docs) |
+| **OpenAPI JSON Spec** | [http://localhost:5000/api/v1/apispec.json](http://localhost:5000/api/v1/apispec.json) |
+
+### What's Documented
+
+The Swagger UI documents all API endpoints grouped by tags:
+
+#### 🔐 Authentication Endpoints
+| Endpoint | Methods | Description |
+|---|---|---|
+| `/api/v1/auth/register` | GET, POST | User registration with form validation |
+| `/api/v1/auth/login` | GET, POST | User login with username or email |
+| `/api/v1/auth/logout` | GET | End session (requires auth) |
+| `/api/v1/auth/profile` | GET | View user profile (requires auth) |
+| `/api/v1/auth/change-password` | GET, POST | Change password (requires auth) |
+| `/api/v1/auth/account/delete` | POST | Deactivate account (requires auth) |
+
+#### 📝 Blog Endpoints
+| Endpoint | Methods | Description |
+|---|---|---|
+| `/api/v1/blog/` | GET | List all posts (paginated) |
+| `/api/v1/blog/posts` | GET | List all posts (alias) |
+| `/api/v1/blog/post/<id>` | GET | View a single post |
+| `/api/v1/blog/create` | GET, POST | Create a new post (requires auth) |
+| `/api/v1/blog/post/<id>/edit` | GET, POST | Edit a post (author/admin only) |
+| `/api/v1/blog/post/<id>/delete` | POST | Delete a post (author/admin only) |
+| `/api/v1/blog/my-posts` | GET | Current user's posts (requires auth) |
+| `/api/v1/blog/author/<id>` | GET | Posts by a specific author |
+| `/api/v1/blog/search` | GET | Search posts by title or content |
+
+### Features
+
+- **Interactive Testing** — Execute API requests directly from the browser using the "Try it out" button
+- **Parameter Documentation** — Each endpoint shows required/optional parameters with types, descriptions, and examples
+- **Response Schemas** — View expected response structures and status codes
+- **Security Indicators** — Endpoints requiring authentication are marked with a 🔒 lock icon
+- **OpenAPI Spec** — Machine-readable API specification available at `/api/v1/apispec.json` for code generation or import into tools like Postman
+
+### Configuration
+
+Swagger is configured in `app/swagger_config.py` and initialized in the app factory (`app/__init__.py`). Key settings:
+
+| Setting | Value | Description |
+|---|---|---|
+| `specs_route` | `/api/v1/docs/` | URL where Swagger UI is served |
+| `specs.route` | `/api/v1/apispec.json` | URL for the raw OpenAPI JSON spec |
+| Security Scheme | `SessionAuth` (cookie-based) | Session authentication via login |
+
 
 ## Development
 

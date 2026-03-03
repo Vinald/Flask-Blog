@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from app import config
 from app.extensions import db, ma, login_manager, bcrypt
 from flask_migrate import Migrate
+from flasgger import Swagger
+from app.swagger_config import SWAGGER_CONFIG, SWAGGER_TEMPLATE
 
 # Load environment variables from .env file
 load_dotenv()
@@ -64,6 +66,9 @@ def create_app(test_config=None):
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(blog_bp)
+
+    # Initialize Swagger UI documentation
+    Swagger(app, config=SWAGGER_CONFIG, template=SWAGGER_TEMPLATE)
 
     # Context processor to make utilities available in all templates
     @app.context_processor

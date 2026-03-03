@@ -17,8 +17,52 @@ blog_bp = Blueprint('blog', __name__, url_prefix='/api/v1/blog')
 @blog_bp.route('/posts')
 def index():
     """
-    Blog home page - displays all posts with pagination.
-    Accessible to everyone (no login required).
+    List All Blog Posts
+    Retrieve all blog posts with pagination, ordered by most recent first.
+    ---
+    tags:
+      - Blog
+    parameters:
+      - name: page
+        in: query
+        type: integer
+        required: false
+        default: 1
+        description: Page number for pagination
+    responses:
+      200:
+        description: Paginated list of blog posts
+        schema:
+          type: object
+          properties:
+            posts:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  body:
+                    type: string
+                  author_id:
+                    type: integer
+                  created:
+                    type: string
+                    format: date-time
+            total:
+              type: integer
+              description: Total number of posts
+            pages:
+              type: integer
+              description: Total number of pages
+            current_page:
+              type: integer
+            has_prev:
+              type: boolean
+            has_next:
+              type: boolean
     """
     # Get page number from query string, default to 1
     page = request.args.get('page', 1, type=int)
@@ -38,12 +82,43 @@ def index():
 @blog_bp.route('/post/<int:post_id>')
 def view_post(post_id):
     """
-    View a single blog post.
-    Shows post details and author information.
-    Accessible to everyone.
-
-    Args:
-        post_id (int): The ID of the post to view
+    View a Single Blog Post
+    Retrieve a blog post by its ID with full content and author details.
+    ---
+    tags:
+      - Blog
+    parameters:
+      - name: post_id
+        in: path
+        type: integer
+        required: true
+        description: The unique ID of the blog post
+    responses:
+      200:
+        description: Blog post details
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+            title:
+              type: string
+            body:
+              type: string
+            author_id:
+              type: integer
+            created:
+              type: string
+              format: date-time
+            author:
+              type: object
+              properties:
+                id:
+                  type: integer
+                username:
+                  type: string
+      404:
+        description: Post not found
     """
     # Get post or return 404 if not found
     post = BlogService.get_post_by_id(post_id)
@@ -61,11 +136,33 @@ def view_post(post_id):
 @login_required
 def create_post():
     """
-    Create a new blog post.
-    GET: Display post creation form
-    POST: Process form and create new post
-
-    Requires user to be logged in.
+    Create a New Blog Post
+    Create a new blog post with a title and body content. Requires authentication.
+    ---
+    tags:
+      - Blog
+    security:
+      - SessionAuth: []
+    parameters:
+      - name: title
+        in: formData
+        type: string
+        required: true
+        description: Post title (minimum 3 characters)
+        example: My First Blog Post
+      - name: body
+        in: formData
+        type: string
+        required: true
+        description: Post content (minimum 10 characters)
+        example: This is the content of my very first blog post.
+    responses:
+      200:
+        description: Post creation form (GET) or validation error (POST)
+      302:
+        description: Redirect to the new post on success
+      401:
+        description: User is not logged in
     """
     form = PostForm()
 
@@ -102,15 +199,41 @@ def create_post():
 @login_required
 def edit_post(post_id):
     """
-    Edit an existing blog post.
-    GET: Display edit form with current post data
-    POST: Process form and update post
-
-    Requires user to be logged in.
-    User must be the author or an admin to edit.
-
-    Args:
-        post_id (int): The ID of the post to edit
+    Edit a Blog Post
+    Update an existing blog post's title and/or body. Requires authentication and
+    ownership (author or admin).
+    ---
+    tags:
+      - Blog
+    security:
+      - SessionAuth: []
+    parameters:
+      - name: post_id
+        in: path
+        type: integer
+        required: true
+        description: The unique ID of the post to edit
+      - name: title
+        in: formData
+        type: string
+        required: true
+        description: Updated post title (minimum 3 characters)
+      - name: body
+        in: formData
+        type: string
+        required: true
+        description: Updated post content (minimum 10 characters)
+    responses:
+      200:
+        description: Edit form with current data (GET) or validation error (POST)
+      302:
+        description: Redirect to the updated post on success
+      401:
+        description: User is not logged in
+      403:
+        description: User does not have permission to edit this post
+      404:
+        description: Post not found
     """
     # Get post or return 404
     post = BlogService.get_post_by_id(post_id)
@@ -156,12 +279,28 @@ def edit_post(post_id):
 @login_required
 def delete_post(post_id):
     """
-    Delete a blog post.
-    Requires POST request for security (prevents accidental deletion via GET).
-    User must be the author or an admin to delete.
-
-    Args:
-        post_id (int): The ID of the post to delete
+    Delete a Blog Post
+    Permanently delete a blog post. Requires authentication and ownership (author or admin).
+    ---
+    tags:
+      - Blog
+    security:
+      - SessionAuth: []
+    parameters:
+      - name: post_id
+        in: path
+        type: integer
+        required: true
+        description: The unique ID of the post to delete
+    responses:
+      302:
+        description: Redirect to blog index on success, or to post on failure
+      401:
+        description: User is not logged in
+      403:
+        description: User does not have permission to delete this post
+      404:
+        description: Post not found
     """
     # Get post or return 404
     post = BlogService.get_post_by_id(post_id)
@@ -191,10 +330,25 @@ def delete_post(post_id):
 @login_required
 def my_posts():
     """
-    Display all posts by the current user.
-    Shows user's own posts with pagination.
-
-    Requires user to be logged in.
+    My Posts
+    Retrieve all posts authored by the currently logged-in user, with pagination.
+    ---
+    tags:
+      - Blog
+    security:
+      - SessionAuth: []
+    parameters:
+      - name: page
+        in: query
+        type: integer
+        required: false
+        default: 1
+        description: Page number for pagination
+    responses:
+      200:
+        description: Paginated list of the current user's posts
+      401:
+        description: User is not logged in
     """
     # Get page number from query string
     page = request.args.get('page', 1, type=int)
@@ -218,12 +372,50 @@ def my_posts():
 @blog_bp.route('/author/<int:author_id>')
 def author_posts(author_id):
     """
-    Display all posts by a specific author.
-    Shows public view of an author's posts.
-    Accessible to everyone.
-
-    Args:
-        author_id (int): The ID of the author
+    Posts by Author
+    Retrieve all posts by a specific author, with pagination.
+    ---
+    tags:
+      - Blog
+    parameters:
+      - name: author_id
+        in: path
+        type: integer
+        required: true
+        description: The unique ID of the author
+      - name: page
+        in: query
+        type: integer
+        required: false
+        default: 1
+        description: Page number for pagination
+    responses:
+      200:
+        description: Paginated list of the author's posts
+        schema:
+          type: object
+          properties:
+            author:
+              type: object
+              properties:
+                id:
+                  type: integer
+                username:
+                  type: string
+            posts:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  created:
+                    type: string
+                    format: date-time
+      404:
+        description: Author not found
     """
     # Import here to avoid circular import
     from app.models import User
@@ -256,9 +448,51 @@ def author_posts(author_id):
 @blog_bp.route('/search')
 def search():
     """
-    Search blog posts by title or content.
-    Uses query parameter 'q' for search term.
-    Accessible to everyone.
+    Search Blog Posts
+    Search for blog posts by title or content using a query string.
+    ---
+    tags:
+      - Blog
+    parameters:
+      - name: q
+        in: query
+        type: string
+        required: true
+        description: Search term to look for in post titles and content
+        example: flask
+      - name: page
+        in: query
+        type: integer
+        required: false
+        default: 1
+        description: Page number for pagination
+    responses:
+      200:
+        description: Paginated search results
+        schema:
+          type: object
+          properties:
+            query:
+              type: string
+              description: The search term used
+            posts:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  body:
+                    type: string
+                  created:
+                    type: string
+                    format: date-time
+            total:
+              type: integer
+      302:
+        description: Redirect to blog index if no search term provided
     """
     # Get search query from URL parameters
     query = request.args.get('q', '').strip()
