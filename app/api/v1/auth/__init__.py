@@ -1,7 +1,7 @@
 """
 Authentication API package.
-Exports the authentication blueprint for registration with the Flask app.
+Exports the authentication API blueprint for registration with the Flask app.
 """
-from app.api.v1.auth.auth import auth_bp
+from app.api.v1.auth.routes import auth_api_bp
 
-__all__ = ['auth_bp']
+__all__ = ['auth_api_bp']

@@ -1,7 +1,6 @@
 import os
 from flask import Flask
 from dotenv import load_dotenv
-from app import config
 from app.extensions import db, ma, login_manager, bcrypt
 from flask_migrate import Migrate
 from flasgger import Swagger
@@ -11,6 +10,7 @@ from app.swagger_config import SWAGGER_CONFIG, SWAGGER_TEMPLATE
 load_dotenv()
 
 migrate = Migrate()
+
 
 def create_app(test_config=None):
     """
@@ -58,6 +58,10 @@ def create_app(test_config=None):
     with app.app_context():
         from app.models import User, Post
 
+    # Register error handlers
+    from app.errors import errors_bp
+    app.register_blueprint(errors_bp)
+
     # Register web (HTML) blueprints
     from app.web.auth import auth_bp
     from app.web.main import main_bp
@@ -68,8 +72,8 @@ def create_app(test_config=None):
     app.register_blueprint(blog_bp)
 
     # Register JSON API blueprints
-    from app.api.v1.auth.api import auth_api_bp
-    from app.api.v1.blog.api import blog_api_bp
+    from app.api.v1.auth import auth_api_bp
+    from app.api.v1.blog import blog_api_bp
 
     app.register_blueprint(auth_api_bp)
     app.register_blueprint(blog_api_bp)
