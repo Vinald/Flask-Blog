@@ -156,44 +156,59 @@ Flask-Blog/
 │   ├── __init__.py          # Application factory with Flask-Login
 │   ├── extensions.py        # SQLAlchemy, Marshmallow, Flask-Login, Bcrypt
 │   ├── swagger_config.py    # Swagger/Flasgger configuration
-│   ├── config.py            # Configuration
-│   ├── errors.py            # Error handlers
+│   ├── config.py            # Configuration classes (Dev/Test/Prod)
+│   ├── errors.py            # Centralized error handlers (400-503)
 │   ├── forms/
-│   │   ├── __init__.py      # Auth forms (Registration, Login, ChangePassword)
+│   │   ├── __init__.py      # Form exports
+│   │   ├── auth.py          # Auth forms (Registration, Login, ChangePassword)
 │   │   └── blog.py          # Blog forms (PostForm)
-│   ├── web/                 # HTML/Web routes (for browsers)
-│   │   ├── __init__.py
+│   ├── web/                  # HTML/Web routes (for browsers)
+│   │   ├── __init__.py      # Web blueprint exports
 │   │   ├── main.py          # Main routes (home, about)
 │   │   ├── auth/            # Authentication HTML routes
 │   │   │   ├── __init__.py
-│   │   │   └── views.py     # Auth pages (register, login, logout, profile)
+│   │   │   └── routes.py    # Auth pages (register, login, logout, profile)
 │   │   └── blog/            # Blog HTML routes
 │   │       ├── __init__.py
-│   │       └── views.py     # Blog pages (CRUD operations, search)
-│   ├── api/                 # JSON API routes (for programmatic access)
+│   │       └── routes.py    # Blog pages (CRUD operations, search)
+│   ├── api/                  # JSON API routes (for programmatic access)
+│   │   ├── __init__.py      # API blueprint exports
 │   │   └── v1/              # API version 1
+│   │       ├── __init__.py  # V1 exports
 │   │       ├── auth/        # Authentication API
 │   │       │   ├── __init__.py
-│   │       │   └── api.py   # JSON auth endpoints (documented in Swagger)
+│   │       │   └── routes.py  # JSON auth endpoints (documented in Swagger)
 │   │       └── blog/        # Blog API
 │   │           ├── __init__.py
-│   │           └── api.py   # JSON blog endpoints (documented in Swagger)
+│   │           └── routes.py  # JSON blog endpoints (documented in Swagger)
 │   ├── models/              # Database models
-│   │   ├── __init__.py
+│   │   ├── __init__.py      # Model exports
 │   │   ├── user.py          # User model with authentication
-│   │   └── post.py          # Post model
+│   │   └── post.py          # Post model with excerpt & timestamps
 │   ├── schemas/             # Marshmallow schemas
-│   │   ├── __init__.py
-│   │   ├── user.py          # User schemas
-│   │   └── blog.py          # Post schema
-│   ├── services/            # Business logic
-│   │   ├── auth_service.py  # Authentication service layer
-│   │   └── blog_service.py  # Blog service layer
+│   │   ├── __init__.py      # Schema exports
+│   │   ├── user.py          # User schemas (User, UserPublic, UserCreate)
+│   │   └── blog.py          # Post schemas (Post, PostCreate, PostUpdate)
+│   ├── services/            # Business logic layer
+│   │   ├── __init__.py      # Service exports
+│   │   ├── auth_service.py  # Authentication service
+│   │   └── blog_service.py  # Blog service
+│   ├── utils/               # Utility functions
+│   │   └── __init__.py      # Helper functions (datetime, text, etc.)
 │   ├── static/              # Static files (CSS, JS, images)
 │   └── templates/           # Jinja2 templates
 │       ├── base.html        # Base template with navbar
 │       ├── index.html       # Home page
 │       ├── about.html       # About page
+│       ├── errors/          # Error pages
+│       │   ├── 400.html     # Bad Request
+│       │   ├── 401.html     # Unauthorized
+│       │   ├── 403.html     # Forbidden
+│       │   ├── 404.html     # Not Found
+│       │   ├── 405.html     # Method Not Allowed
+│       │   ├── 429.html     # Too Many Requests
+│       │   ├── 500.html     # Internal Server Error
+│       │   └── 503.html     # Service Unavailable
 │       ├── auth/            # Authentication templates
 │       │   ├── login.html
 │       │   ├── register.html
@@ -209,13 +224,31 @@ Flask-Blog/
 │           └── search_results.html  # Search results page
 ├── migrations/              # Alembic migrations
 │   └── versions/            # Migration files
-├── tests/                   # Test suite
+├── tests/                   # Test suite (98 tests)
+│   ├── conftest.py          # Test configuration and fixtures
+│   ├── test_auth.py         # Authentication tests
+│   ├── test_blog.py         # Blog post tests
+│   ├── test_models.py       # Model tests
+│   ├── test_services.py     # Service layer tests
+│   └── test_integration.py  # Integration tests
+├── htmlcov/                 # Coverage reports
+├── instance/                # Instance-specific files
 ├── .env                     # Environment variables (not in git)
 ├── .env.example             # Environment template
-├── .gitignore              # Git ignore rules
+├── .gitignore               # Git ignore rules
+├── docker-compose.yml       # Docker Compose (production)
+├── docker-compose.dev.yml   # Docker Compose (development)
+├── docker-compose.test.yml  # Docker Compose (testing)
+├── Dockerfile               # Production Docker image
+├── Dockerfile.dev           # Development Docker image
+├── docker.sh                # Docker management script
+├── Makefile                 # Make commands
+├── DOCKER.md                # Docker documentation
+├── SECURITY.md              # Security policy
 ├── requirements.txt         # Python dependencies
-├── wsgi.py                 # Application entry point
-└── README.md               # This file
+├── pyproject.toml           # Project configuration
+├── wsgi.py                  # Application entry point
+└── README.md                # This file
 ```
 
 ## Environment Variables
@@ -236,6 +269,7 @@ SQLALCHEMY_TRACK_MODIFICATIONS=False
 ## Database Models
 
 ### User (with Authentication)
+
 - `id` - Primary key, auto-increment
 - `username` - Unique username (3-80 chars)
 - `email` - Unique email address
@@ -248,17 +282,25 @@ SQLALCHEMY_TRACK_MODIFICATIONS=False
 - `posts` - Relationship to posts (one-to-many)
 
 **Methods:**
+
 - `password` (setter) - Automatically hashes password with bcrypt
 - `check_password(password)` - Verifies password against hash
 - `update_last_login()` - Updates last login timestamp
 
 ### Post
+
 - `id` - Primary key, auto-increment
-- `author_id` - Foreign key to User
-- `created` - Post creation timestamp
-- `title` - Post title
+- `author_id` - Foreign key to User (indexed)
+- `title` - Post title (max 200 chars)
 - `body` - Post content
+- `created` - Post creation timestamp
+- `updated_at` - Last update timestamp
 - `author` - Relationship to User (many-to-one)
+
+**Properties:**
+
+- `excerpt` - Returns a truncated preview of the post body (150 chars)
+- `was_edited` - Returns True if post was edited after creation
 
 ## Authentication System
 
@@ -523,7 +565,7 @@ After modifying models:
 
 ## Testing
 
-The application includes a comprehensive test suite with 200+ tests covering all functionality.
+The application includes a comprehensive test suite with 98 tests covering all functionality.
 
 ### Run Tests
 
@@ -548,7 +590,6 @@ pytest -v
 
 - ✅ **Authentication** - Registration, login, logout, password management
 - ✅ **Blog Posts** - CRUD operations, permissions, search
-- ✅ **RESTful API** - All API endpoints with authentication
 - ✅ **Service Layer** - Business logic and validation
 - ✅ **Models** - Database models and relationships
 - ✅ **Integration** - Complete user workflows
@@ -558,12 +599,11 @@ See [tests/README.md](tests/README.md) for detailed testing documentation.
 ### Test Files
 
 - `tests/conftest.py` - Test configuration and fixtures
-- `tests/test_auth.py` - Authentication tests (60+ tests)
-- `tests/test_blog.py` - Blog post tests (50+ tests)
-- `tests/test_api.py` - API tests (40+ tests)
-- `tests/test_services.py` - Service layer tests (25+ tests)
-- `tests/test_models.py` - Model tests (15+ tests)
-- `tests/test_integration.py` - Integration tests (15+ tests)
+- `tests/test_auth.py` - Authentication tests (25 tests)
+- `tests/test_blog.py` - Blog post tests (34 tests)
+- `tests/test_services.py` - Service layer tests (20 tests)
+- `tests/test_models.py` - Model tests (13 tests)
+- `tests/test_integration.py` - Integration tests (6 tests)
 
 ## Database Migrations
 
@@ -697,15 +737,14 @@ make test-docker
 
 ### Test Suite
 
-- **132 tests** covering all features
-- **80%+ code coverage**
-- **7 test modules:**
-  - `test_auth.py` - Authentication (54 tests)
-  - `test_blog.py` - Blog posts (30 tests)
-  - `test_api.py` - REST API (29 tests)
-  - `test_services.py` - Business logic (12 tests)
+- **98 tests** covering all features
+- **61%+ code coverage**
+- **6 test modules:**
+  - `test_auth.py` - Authentication (25 tests)
+  - `test_blog.py` - Blog posts (34 tests)
   - `test_models.py` - Database models (13 tests)
-  - `test_integration.py` - End-to-end flows (10 tests)
+  - `test_services.py` - Business logic (20 tests)
+  - `test_integration.py` - End-to-end flows (6 tests)
 
 ### Test Categories
 
