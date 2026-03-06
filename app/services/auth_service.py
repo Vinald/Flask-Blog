@@ -263,3 +263,62 @@ class AuthService:
             db.session.rollback()
             return False, f'Failed to update profile image: {str(e)}'
 
+    @staticmethod
+    def request_password_reset(email: str) -> Tuple[bool, Optional[str], Optional[str]]:
+        """
+        Request a password reset for a user by email.
+
+        Args:
+            email (str): User's email address
+
+        Returns:
+            Tuple[bool, Optional[str], Optional[str]]: (success, message, token)
+            Returns (True, message, token) if user found, (False, error, None) otherwise
+        """
+        email = email.lower().strip()
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            # Don't reveal if email exists - security best practice
+            return True, 'If an account with that email exists, a password reset link has been sent.', None
+
+        if not user.is_active:
+            return False, 'This account has been deactivated. Please contact support.', None
+
+        try:
+            # Generate reset token
+            token = user.generate_reset_token()
+            return True, 'If an account with that email exists, a password reset link has been sent.', token
+        except Exception as e:
+            return False, f'Failed to generate reset token: {str(e)}', None
+
+    @staticmethod
+    def reset_password(token: str, new_password: str) -> Tuple[bool, Optional[str]]:
+        """
+        Reset user password using a valid token.
+
+        Args:
+            token (str): Password reset token
+            new_password (str): New password to set
+
+        Returns:
+            Tuple[bool, Optional[str]]: (success, error_message)
+        """
+        # Verify token and get user
+        user = User.verify_reset_token(token)
+
+        if not user:
+            return False, 'Invalid or expired reset token. Please request a new one.'
+
+        if not user.is_active:
+            return False, 'This account has been deactivated. Please contact support.'
+
+        try:
+            # Set new password
+            user.password = new_password
+            user.updated_at = datetime.now(timezone.utc)
+            db.session.commit()
+            return True, None
+        except Exception as e:
+            db.session.rollback()
+            return False, f'Failed to reset password: {str(e)}'

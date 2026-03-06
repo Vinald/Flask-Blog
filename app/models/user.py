@@ -1,6 +1,8 @@
 from app.extensions import db, bcrypt, login_manager
 from datetime import datetime, timezone
 from flask_login import UserMixin
+from itsdangerous import URLSafeTimedSerializer
+from flask import current_app
 
 
 class User(UserMixin, db.Model):
@@ -71,6 +73,39 @@ class User(UserMixin, db.Model):
         """
         self.last_login = datetime.now(timezone.utc)
         db.session.commit()
+
+    def generate_reset_token(self, expires_sec=3600):
+        """
+        Generate a password reset token.
+
+        Args:
+            expires_sec (int): Token expiration time in seconds (default: 1 hour)
+
+        Returns:
+            str: The reset token
+        """
+        serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        return serializer.dumps({'user_id': self.id}, salt='password-reset-salt')
+
+    @staticmethod
+    def verify_reset_token(token, expires_sec=3600):
+        """
+        Verify a password reset token and return the user.
+
+        Args:
+            token (str): The reset token to verify
+            expires_sec (int): Maximum age of token in seconds (default: 1 hour)
+
+        Returns:
+            User: The user object if token is valid, None otherwise
+        """
+        serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        try:
+            data = serializer.loads(token, salt='password-reset-salt', max_age=expires_sec)
+            user_id = data.get('user_id')
+        except:
+            return None
+        return User.query.get(user_id)
 
     # Flask-Login required methods (inherited from UserMixin)
     # - is_authenticated: Always returns True for authenticated users

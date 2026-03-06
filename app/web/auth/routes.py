@@ -197,6 +197,77 @@ def delete_account():
         return redirect(url_for('auth.profile'))
 
 
+@auth_bp.route('/reset-password', methods=['GET', 'POST'])
+def request_password_reset():
+    """
+    Request Password Reset
+    Allow users to request a password reset link via email.
+    """
+    # Redirect authenticated users
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+
+    from app.forms import RequestPasswordResetForm
+    form = RequestPasswordResetForm()
+
+    if form.validate_on_submit():
+        email = form.email.data
+
+        # Request password reset
+        success, message, token = AuthService.request_password_reset(email)
+
+        if success and token:
+            # Get user and send reset email
+            user = AuthService.get_user_by_email(email)
+            if user:
+                from app.utils.email import send_password_reset_email
+                reset_url = url_for('auth.reset_password', token=token, _external=True)
+
+                if send_password_reset_email(user, reset_url):
+                    flash(message, 'info')
+                else:
+                    flash('Failed to send reset email. Please try again later.', 'danger')
+            else:
+                # User not found but still show generic message for security
+                flash(message, 'info')
+        else:
+            # Show generic message for security
+            flash(message, 'info' if success else 'danger')
+
+        return redirect(url_for('auth.login'))
+
+    return render_template('auth/request_reset.html', form=form, title='Reset Password')
+
+
+@auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    """
+    Reset Password with Token
+    Allow users to reset their password using a valid reset token.
+    """
+    # Redirect authenticated users
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+
+    from app.forms import ResetPasswordForm
+    form = ResetPasswordForm()
+
+    if form.validate_on_submit():
+        new_password = form.password.data
+
+        # Reset password
+        success, error = AuthService.reset_password(token, new_password)
+
+        if success:
+            flash('Your password has been reset successfully! You can now log in.', 'success')
+            return redirect(url_for('auth.login'))
+        else:
+            flash(error, 'danger')
+            return redirect(url_for('auth.request_password_reset'))
+
+    return render_template('auth/reset_password.html', form=form, token=token, title='Reset Password')
+
+
 # Error handlers for authentication blueprint
 @auth_bp.errorhandler(401)
 def unauthorized(error):

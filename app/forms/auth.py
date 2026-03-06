@@ -165,3 +165,49 @@ class UpdateProfileForm(FlaskForm):
     )
 
     submit = SubmitField('Update Profile', render_kw={'class': 'btn btn-primary'})
+
+
+class RequestPasswordResetForm(FlaskForm):
+    """
+    Form for requesting a password reset.
+    User enters their email to receive a reset link.
+    """
+
+    email = StringField(
+        'Email',
+        validators=[
+            DataRequired(message='Email is required'),
+            Email(message='Please enter a valid email address')
+        ],
+        render_kw={'placeholder': 'Enter your email address', 'class': 'form-control', 'type': 'email'}
+    )
+
+    submit = SubmitField('Send Reset Link', render_kw={'class': 'btn btn-primary btn-block'})
+
+
+class ResetPasswordForm(FlaskForm):
+    """
+    Form for resetting password with a valid token.
+    """
+
+    password = PasswordField(
+        'New Password',
+        validators=[
+            DataRequired(message='Password is required'),
+            Length(min=8, message='Password must be at least 8 characters long')
+        ],
+        render_kw={'placeholder': 'Enter new password', 'class': 'form-control'}
+    )
+
+    confirm_password = PasswordField(
+        'Confirm New Password',
+        validators=[
+            DataRequired(message='Please confirm your password'),
+            EqualTo('password', message='Passwords must match')
+        ],
+        render_kw={'placeholder': 'Confirm new password', 'class': 'form-control'}
+    )
+
+    submit = SubmitField('Reset Password', render_kw={'class': 'btn btn-primary btn-block'})
+
+

@@ -312,6 +312,7 @@ SQLALCHEMY_TRACK_MODIFICATIONS=False
 - **User Profile** - View account details, statistics, manage account
 - **Profile Images** - Upload custom profile pictures with secure validation
 - **Password Management** - Change password with current password verification
+- **Password Reset** - Secure password reset via email with time-limited tokens
 - **Account Deactivation** - Soft delete that preserves data
 - **Session Security** - Flask-Login with secure cookies, CSRF protection
 
@@ -347,6 +348,49 @@ Users can upload custom profile pictures that appear throughout the application:
 - File size limits enforced
 - Directory traversal prevention
 
+### Password Reset Feature
+
+Users can securely reset their password via email if they forget it:
+
+**Features:**
+- Email-based password reset
+- Time-limited reset tokens (1 hour expiration)
+- Secure token generation using itsdangerous
+- Email sent asynchronously to avoid blocking
+- Both HTML and plain text email formats
+- Security best practice: doesn't reveal if email exists
+
+**Reset Process:**
+1. Click "Forgot Password?" on login page
+2. Enter email address
+3. Receive reset link via email (if account exists)
+4. Click link to access reset form
+5. Enter new password
+6. Password updated, can login immediately
+
+**Email Configuration:**
+- Supports SMTP (Gmail, SendGrid, etc.)
+- Configurable via environment variables
+- HTML email templates with styling
+- Asynchronous sending for better performance
+
+**Security:**
+- Tokens expire after 1 hour
+- Secure token generation with salt
+- No email enumeration (generic messages)
+- Inactive accounts cannot reset password
+- Password strength validation enforced
+
+**Environment Variables:**
+```env
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USE_TLS=True
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_DEFAULT_SENDER=noreply@flaskblog.com
+```
+
 ### Route Architecture
 
 Flask Blog uses a **dual-interface architecture** with clear separation between HTML and JSON API routes:
@@ -381,6 +425,8 @@ These serve JSON data for programmatic access and mobile apps:
 | `/auth/logout` | GET | Yes | User logout |
 | `/auth/profile` | GET, POST | Yes | User profile page & image upload |
 | `/auth/change-password` | GET, POST | Yes | Change password form |
+| `/auth/reset-password` | GET, POST | No | Request password reset link |
+| `/auth/reset-password/<token>` | GET, POST | No | Reset password with token |
 | `/blog/` | GET | No | All blog posts (paginated) |
 | `/blog/post/<id>` | GET | No | View single post |
 | `/blog/create` | GET, POST | Yes | Create new post form |

@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from dotenv import load_dotenv
-from app.extensions import db, ma, login_manager, bcrypt
+from app.extensions import db, ma, login_manager, bcrypt, mail
 from flask_migrate import Migrate
 from flasgger import Swagger
 from app.swagger_config import SWAGGER_CONFIG, SWAGGER_TEMPLATE
@@ -49,6 +49,7 @@ def create_app(test_config=None):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     bcrypt.init_app(app)
+    mail.init_app(app)
 
     # Import models to ensure they're registered with SQLAlchemy
     # This must be done before registering blueprints to avoid circular imports

@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
+from flask_mail import Mail
 
 # Database ORM
 db = SQLAlchemy()
@@ -21,3 +22,7 @@ login_manager.login_message_category = 'info'
 
 # Password hashing
 bcrypt = Bcrypt()
+
+# Email
+mail = Mail()
+
