@@ -265,7 +265,17 @@ FLASK_ENV=development
 # Database Configuration
 SQLALCHEMY_DATABASE_URI=postgresql+psycopg://user:password@localhost:5432/dbname
 SQLALCHEMY_TRACK_MODIFICATIONS=False
+
+# Email Configuration (for password reset)
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USE_TLS=True
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-gmail-app-password
+MAIL_DEFAULT_SENDER=noreply@flaskblog.com
 ```
+
+**Note:** For Gmail, you must use an App Password (not your regular password). See the Password Reset section below for setup instructions.
 
 ## Database Models
 
@@ -389,6 +399,21 @@ MAIL_USE_TLS=True
 MAIL_USERNAME=your-email@gmail.com
 MAIL_PASSWORD=your-app-password
 MAIL_DEFAULT_SENDER=noreply@flaskblog.com
+```
+
+**Gmail Setup (Important!):**
+
+For Gmail, you **must** use an App Password, not your regular password:
+
+1. Enable 2-Factor Authentication: https://myaccount.google.com/security
+2. Generate App Password: https://myaccount.google.com/apppasswords
+3. Select "Mail" → "Other (Custom name)" → "Flask Blog"
+4. Copy the 16-character password (remove spaces)
+5. Use this in `MAIL_PASSWORD` in your `.env` file
+
+**Test Email Configuration:**
+```bash
+python tests/test_email_config.py
 ```
 
 ### Route Architecture
@@ -839,6 +864,60 @@ make test-docker
 - ✅ API endpoints (JSON responses)
 - ✅ Model relationships
 - ✅ Service layer logic
+
+---
+
+## 🔧 Troubleshooting
+
+### Password Reset Email Not Sending
+
+If password reset emails aren't being sent:
+
+1. **Check email configuration in `.env`:**
+   ```bash
+   grep MAIL_ .env
+   ```
+
+2. **For Gmail users - Use App Password:**
+   - Regular Gmail password won't work
+   - Enable 2FA: https://myaccount.google.com/security
+   - Generate App Password: https://myaccount.google.com/apppasswords
+   - Use the 16-character App Password (remove spaces)
+
+3. **Run diagnostic test:**
+   ```bash
+   python tests/test_email_config.py
+   ```
+   This will check configuration and attempt to send a test email.
+
+4. **Check common issues:**
+   - MAIL_USERNAME is your full email address
+   - MAIL_PASSWORD is App Password (not regular password)
+   - No spaces in MAIL_PASSWORD
+   - Flask app was restarted after .env changes
+
+5. **Check application logs for detailed errors**
+
+### Database Connection Issues
+
+```bash
+# Check if PostgreSQL is running
+psql -h localhost -U your_user -d your_db
+
+# Reset database (development)
+flask db downgrade
+flask db upgrade
+```
+
+### Module Import Errors
+
+```bash
+# Reinstall dependencies
+pip install -r requirements.txt
+
+# Check Python version
+python --version  # Should be 3.14+
+```
 
 ---
 
