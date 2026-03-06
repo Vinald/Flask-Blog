@@ -17,6 +17,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     id = fields.Int(dump_only=True)
     username = fields.Str(required=True)
     email = fields.Email(dump_only=True)  # Only show email to authenticated users
+    profile_image = fields.Str(dump_only=True)
     is_active = fields.Bool(dump_only=True)
     is_admin = fields.Bool(dump_only=True)
     created_at = fields.DateTime(dump_only=True)
@@ -39,10 +40,11 @@ class UserPublicSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         load_instance = True
-        fields = ('id', 'username', 'created_at')
+        fields = ('id', 'username', 'profile_image', 'created_at')
 
     id = fields.Int(dump_only=True)
     username = fields.Str()
+    profile_image = fields.Str(dump_only=True)
     created_at = fields.DateTime(dump_only=True)
 
 

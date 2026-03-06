@@ -3,6 +3,7 @@ Authentication forms using Flask-WTF.
 These forms handle user input validation for registration and login.
 """
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import (
     DataRequired,
@@ -147,3 +148,20 @@ class ChangePasswordForm(FlaskForm):
     )
 
     submit = SubmitField('Change Password', render_kw={'class': 'btn btn-primary'})
+
+
+class UpdateProfileForm(FlaskForm):
+    """
+    Form for updating user profile, including profile image.
+    """
+
+    profile_image = FileField(
+        'Profile Image',
+        validators=[
+            FileAllowed(['png', 'jpg', 'jpeg', 'gif', 'webp'],
+                       'Only image files are allowed (PNG, JPG, JPEG, GIF, WEBP)')
+        ],
+        render_kw={'class': 'form-control', 'accept': 'image/*'}
+    )
+
+    submit = SubmitField('Update Profile', render_kw={'class': 'btn btn-primary'})

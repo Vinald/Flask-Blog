@@ -4,8 +4,9 @@ Includes registration, login, logout, and password management.
 """
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user, logout_user
-from app.forms import RegistrationForm, LoginForm, ChangePasswordForm
+from app.forms import RegistrationForm, LoginForm, ChangePasswordForm, UpdateProfileForm
 from app.services.auth_service import AuthService
+from app.utils import save_profile_image
 from urllib.parse import urlparse
 
 # Create authentication web blueprint
@@ -110,14 +111,37 @@ def logout():
     return redirect(url_for('main.index'))
 
 
-@auth_bp.route('/profile')
+@auth_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
     """
     User Profile
     Display the current user's profile information and account details.
+    Also handles profile updates including profile image upload.
     """
-    return render_template('auth/profile.html', title='Profile', user=current_user)
+    form = UpdateProfileForm()
+
+    # Handle form submission (profile update)
+    if form.validate_on_submit():
+        # Check if user uploaded a profile image
+        if form.profile_image.data:
+            # Save the uploaded image
+            filename, error = save_profile_image(form.profile_image.data, current_user.id)
+
+            if filename:
+                # Update user's profile image in database
+                success, error = AuthService.update_profile_image(current_user, filename)
+
+                if success:
+                    flash('Profile image updated successfully!', 'success')
+                else:
+                    flash(f'Failed to update profile image: {error}', 'danger')
+            else:
+                flash(f'Failed to upload image: {error}', 'danger')
+
+        return redirect(url_for('auth.profile'))
+
+    return render_template('auth/profile.html', title='Profile', user=current_user, form=form)
 
 
 @auth_bp.route('/change-password', methods=['GET', 'POST'])

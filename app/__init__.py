@@ -5,6 +5,7 @@ from app.extensions import db, ma, login_manager, bcrypt
 from flask_migrate import Migrate
 from flasgger import Swagger
 from app.swagger_config import SWAGGER_CONFIG, SWAGGER_TEMPLATE
+from app.config import get_config
 
 # Load environment variables from .env file
 load_dotenv()
@@ -26,21 +27,17 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
 
     if test_config is None:
-        # Get database URI from env or use default
-        db_uri = os.getenv('SQLALCHEMY_DATABASE_URI')
-        if not db_uri or db_uri.strip() == '':
-            db_uri = f'sqlite:///{os.path.join(app.instance_path, "flaskr.sqlite")}'
+        # Load configuration from config module
+        config_class = get_config()
+        app.config.from_object(config_class)
 
-        # Load configuration from environment variables
-        app.config.from_mapping(
-            SECRET_KEY=os.getenv('SECRET_KEY', 'dev'),
-            SQLALCHEMY_DATABASE_URI=db_uri,
-            SQLALCHEMY_TRACK_MODIFICATIONS=os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS', 'False').lower() in ('true', '1', 't'),
-            # WTForms configuration
-            WTF_CSRF_ENABLED=True,
-            WTF_CSRF_TIME_LIMIT=None,  # No time limit for CSRF token
-        )
-        app.config.from_pyfile('config.py', silent=True)
+        # Override database URI from env if provided
+        db_uri = os.getenv('SQLALCHEMY_DATABASE_URI')
+        if db_uri and db_uri.strip():
+            app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+        elif not app.config.get('SQLALCHEMY_DATABASE_URI'):
+            # Default to SQLite in instance folder
+            app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(app.instance_path, "flaskr.sqlite")}'
     else:
         app.config.from_mapping(test_config)
 

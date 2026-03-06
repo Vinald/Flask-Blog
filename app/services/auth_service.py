@@ -232,3 +232,34 @@ class AuthService:
         except Exception as e:
             db.session.rollback()
             return False, f'Failed to activate user: {str(e)}'
+
+    @staticmethod
+    def update_profile_image(user: User, new_image_filename: str) -> Tuple[bool, Optional[str]]:
+        """
+        Update user's profile image.
+
+        Args:
+            user (User): The user object
+            new_image_filename (str): The filename of the new profile image
+
+        Returns:
+            Tuple[bool, Optional[str]]: (success, error_message)
+        """
+        from app.utils import delete_profile_image
+
+        try:
+            # Delete old profile image if not default
+            old_image = user.profile_image
+            if old_image and old_image != 'default.png':
+                delete_profile_image(old_image)
+
+            # Update to new image
+            user.profile_image = new_image_filename
+            user.updated_at = datetime.now(timezone.utc)
+            db.session.commit()
+            return True, None
+
+        except Exception as e:
+            db.session.rollback()
+            return False, f'Failed to update profile image: {str(e)}'
+

@@ -80,7 +80,15 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user"></i> {{ current_user.username }}
+                                {% if current_user.profile_image and current_user.profile_image != 'default.png' %}
+                                    <img src="{{ url_for('static', filename='uploads/profile_images/' + current_user.profile_image) }}"
+                                         alt="{{ current_user.username }}"
+                                         class="rounded-circle"
+                                         style="width: 28px; height: 28px; object-fit: cover;">
+                                {% else %}
+                                    <i class="fas fa-user-circle"></i>
+                                {% endif %}
+                                {{ current_user.username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">

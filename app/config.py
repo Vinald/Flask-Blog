@@ -34,8 +34,11 @@ class Config:
     # Pagination
     POSTS_PER_PAGE = 10
     
-    # File uploads (if needed in future)
+    # File uploads
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max upload
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'app', 'static', 'uploads')
+    PROFILE_IMAGES_FOLDER = os.path.join(UPLOAD_FOLDER, 'profile_images')
+    ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 
 class DevelopmentConfig(Config):
