@@ -21,6 +21,7 @@ A modern, secure Flask blog application with complete authentication system, Pos
 
 ### Authentication System
 - ✅ **Complete Authentication System** - Registration, login, logout, profile management
+- ✅ **Profile Images** - Upload and display custom profile pictures
 - ✅ **Secure Password Hashing** - Bcrypt encryption for all passwords
 - ✅ **Session Management** - Flask-Login with "Remember Me" functionality
 - ✅ **Password Management** - Change password with current password verification
@@ -274,6 +275,7 @@ SQLALCHEMY_TRACK_MODIFICATIONS=False
 - `username` - Unique username (3-80 chars)
 - `email` - Unique email address
 - `password_hash` - Bcrypt hashed password
+- `profile_image` - Profile picture filename (default: 'default.png')
 - `is_active` - Account status (active/deactivated)
 - `is_admin` - Admin privileges flag
 - `created_at` - Account creation timestamp
@@ -308,9 +310,42 @@ SQLALCHEMY_TRACK_MODIFICATIONS=False
 - **User Registration** - Email validation, password strength requirements, uniqueness checks
 - **User Login** - Login with username or email, "Remember Me" functionality
 - **User Profile** - View account details, statistics, manage account
+- **Profile Images** - Upload custom profile pictures with secure validation
 - **Password Management** - Change password with current password verification
 - **Account Deactivation** - Soft delete that preserves data
 - **Session Security** - Flask-Login with secure cookies, CSRF protection
+
+### Profile Image Feature
+
+Users can upload custom profile pictures that appear throughout the application:
+
+**Features:**
+- Secure file upload with validation
+- Supported formats: PNG, JPG, JPEG, GIF, WEBP
+- Maximum file size: 16MB
+- Automatic unique filename generation
+- Old image cleanup on update
+- Responsive display across all pages
+
+**Display Locations:**
+- Profile page (150x150px circular)
+- Navigation bar dropdown (28x28px)
+- Blog post author info (32px on post page, 24px on index)
+- Fallback to icon when no custom image
+
+**Upload Process:**
+1. Navigate to Profile page
+2. Select "Profile Image" section
+3. Choose image file
+4. Click "Update Profile"
+5. Image is validated, saved, and displayed immediately
+
+**Security:**
+- File type validation (images only)
+- Filename sanitization to prevent attacks
+- Unique filename with UUID to prevent conflicts
+- File size limits enforced
+- Directory traversal prevention
 
 ### Route Architecture
 
@@ -344,7 +379,7 @@ These serve JSON data for programmatic access and mobile apps:
 | `/auth/register` | GET, POST | No | User registration form |
 | `/auth/login` | GET, POST | No | User login form |
 | `/auth/logout` | GET | Yes | User logout |
-| `/auth/profile` | GET | Yes | User profile page |
+| `/auth/profile` | GET, POST | Yes | User profile page & image upload |
 | `/auth/change-password` | GET, POST | Yes | Change password form |
 | `/blog/` | GET | No | All blog posts (paginated) |
 | `/blog/post/<id>` | GET | No | View single post |
